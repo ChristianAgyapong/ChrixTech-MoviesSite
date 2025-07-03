@@ -48,33 +48,39 @@ function switchMode(mode) {
 
 // ----- Fetch Movies by Mode -----
 async function fetchMoviesByMode(mode, append = false) {
+  showSpinner();
   isFetching = true;
   let url = `${BASE_URL}/trending/movie/day?api_key=${API_KEY}&page=${currentPage}`;
   if (mode === 'top_rated') url = `${BASE_URL}/movie/top_rated?api_key=${API_KEY}&page=${currentPage}`;
   else if (mode === 'upcoming') url = `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&page=${currentPage}`;
-  else if (mode === 'favorites') return loadFavorites();
+  else if (mode === 'favorites') { hideSpinner(); return loadFavorites(); }
 
   const res = await fetch(url);
   const data = await res.json();
   append ? appendMovies(data.results) : displayMovies(data.results);
   isFetching = false;
+  hideSpinner();
 }
 
 // ----- Search & Filter -----
 async function fetchMovies(query, append = false) {
+  showSpinner();
   isFetching = true;
   const res = await fetch(`${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}&page=${currentPage}`);
   const data = await res.json();
   append ? appendMovies(data.results) : displayMovies(data.results);
   isFetching = false;
+  hideSpinner();
 }
 
 async function fetchMoviesByGenre(genreId, append = false) {
+  showSpinner();
   isFetching = true;
   const res = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&page=${currentPage}`);
   const data = await res.json();
   append ? appendMovies(data.results) : displayMovies(data.results);
   isFetching = false;
+  hideSpinner();
 }
 
 // ----- Fetch Trailer -----
@@ -92,7 +98,15 @@ function getVideoEmbedURL(v) {
 }
 
 // ----- Render Movies -----
-function displayMovies(arr) { moviesContainer.innerHTML = ''; updateStats(arr.length, false); arr.forEach(async m => moviesContainer.appendChild(await createMovieCard(m))); }
+function displayMovies(arr) {
+  moviesContainer.innerHTML = '';
+  updateStats(arr.length, false);
+  if (!arr.length) {
+    moviesContainer.innerHTML = '<p style="text-align:center;">No movies found.</p>';
+    return;
+  }
+  arr.forEach(async m => moviesContainer.appendChild(await createMovieCard(m)));
+}
 function appendMovies(arr) { arr.forEach(async m => { moviesContainer.appendChild(await createMovieCard(m)); updateStats(1, true); }); }
 
 // ----- Create Movie Card -----
@@ -196,16 +210,23 @@ function closeModal() {
 searchButton.addEventListener('click', ()=> {
   if(searchInput.value.trim()) {
     currentPage=1; currentMode='search';
+    currentQuery = searchInput.value; // <-- Save query for infinite scroll
     fetchMovies(searchInput.value);
   }
 });
-searchInput.addEventListener('keypress', e=>{ if(e.key==='Enter') searchButton.click(); });
-genreSelect.addEventListener('change', ()=>{ currentPage=1; currentMode='genre'; fetchMoviesByGenre(genreSelect.value); });
+genreSelect.addEventListener('change', ()=>{
+  currentPage=1; currentMode='genre';
+  currentGenre = genreSelect.value; // <-- Save genre for infinite scroll
+  fetchMoviesByGenre(genreSelect.value);
+});
 sortSelect.addEventListener('change', ()=>switchMode(sortSelect.value));
 trendingButton.addEventListener('click', ()=>switchMode('trending'));
 topRatedButton.addEventListener('click', ()=>switchMode('top_rated'));
 upcomingButton.addEventListener('click', ()=>switchMode('upcoming'));
 favoritesButton.addEventListener('click', ()=>switchMode('favorites'));
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
 
 // ----- Infinite Scroll -----
 window.addEventListener('scroll', ()=> {
@@ -216,3 +237,46 @@ window.addEventListener('scroll', ()=> {
     else if(currentMode==='genre') fetchMoviesByGenre(currentGenre, true);
   }
 });
+
+function showSpinner() {
+  document.getElementById('loadingSpinner').style.display = 'block';
+}
+function hideSpinner() {
+  document.getElementById('loadingSpinner').style.display = 'none';
+}
+
+// Example: Wrap fetch calls with spinner
+async function fetchMoviesByMode(mode, append = false) {
+  showSpinner();
+  isFetching = true;
+  let url = `${BASE_URL}/trending/movie/day?api_key=${API_KEY}&page=${currentPage}`;
+  if (mode === 'top_rated') url = `${BASE_URL}/movie/top_rated?api_key=${API_KEY}&page=${currentPage}`;
+  else if (mode === 'upcoming') url = `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&page=${currentPage}`;
+  else if (mode === 'favorites') { hideSpinner(); return loadFavorites(); }
+
+  const res = await fetch(url);
+  const data = await res.json();
+  append ? appendMovies(data.results) : displayMovies(data.results);
+  isFetching = false;
+  hideSpinner();
+}
+
+async function fetchMovies(query, append = false) {
+  showSpinner();
+  isFetching = true;
+  const res = await fetch(`${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}&page=${currentPage}`);
+  const data = await res.json();
+  append ? appendMovies(data.results) : displayMovies(data.results);
+  isFetching = false;
+  hideSpinner();
+}
+
+async function fetchMoviesByGenre(genreId, append = false) {
+  showSpinner();
+  isFetching = true;
+  const res = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&page=${currentPage}`);
+  const data = await res.json();
+  append ? appendMovies(data.results) : displayMovies(data.results);
+  isFetching = false;
+  hideSpinner();
+}

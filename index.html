@@ -134,12 +134,13 @@
       overflow: hidden;
       box-shadow: 0 2px 8px rgba(0,0,0,.3);
       border: 2px solid #23232b;
-      transition: transform .3s, border-color .3s;
+      transition: transform .3s, border-color .3s, box-shadow .3s;
       text-align: center;
     }
     .movie:hover {
       transform: scale(1.05);
       border-color: #ff4b6e;
+      box-shadow: 0 4px 24px #ff4b6e33;
     }
     .movie img {
       width: 100%;
@@ -187,6 +188,26 @@
       text-align: center;
       border-top: 2px solid #ff4b6e;
     }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .related-movies {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+      justify-content: flex-start;
+    }
+    .related-movies img {
+      width: 70px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      border: 2px solid #23232b;
+      transition: border-color 0.2s;
+    }
+    .related-movies img:hover {
+      border-color: #ff4b6e;
+    }
   </style>
 </head>
 <body>
@@ -222,6 +243,20 @@
   </div>
 
   <div id="movies"></div>
+
+  <!-- Movie Details Modal -->
+  <div id="movieModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(24,24,28,0.95); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#23232b; border-radius:1.2rem; max-width:600px; margin:5vh auto; padding:2rem; position:relative; color:#fff;">
+      <button onclick="closeModal()" aria-label="Close" style="position:absolute; top:1rem; right:1rem; background:none; border:none; color:#ff4b6e; font-size:2rem; cursor:pointer;">&times;</button>
+      <div id="modal-details">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div id="loadingSpinner" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2000;">
+    <div style="border:8px solid #23232b; border-top:8px solid #ff4b6e; border-radius:50%; width:60px; height:60px; animation:spin 1s linear infinite;"></div>
+  </div>
+
 
   <footer>&copy; 2025 Christian Agyapong. All rights reserved.</footer>
   <script src="script.js"></script>
