@@ -133,6 +133,10 @@ async function createMovieCard(movie) {
   const isFav = isFavorite(movie.id);
   const trailerEmbed = trailer ? `<div class="trailer" id="trailer-${movie.id}" style="display:none;"><iframe src="${getVideoEmbedURL(trailer)}" allowfullscreen></iframe></div>` : '';
 
+  // Use icons only on mobile, full text on desktop
+  const watchText = isMobile ? '🎬' : '🎬 Watch';
+  const favText = isMobile ? (isFav ? '💔' : '❤️') : (isFav ? '💔 Remove Favorite' : '❤️ Add to Favorites');
+
   // Implement lazy loading
   card.innerHTML = `
     <img loading="lazy" src="${poster}" alt="${movie.title}" onclick="openModal(${movie.id})">
@@ -140,8 +144,8 @@ async function createMovieCard(movie) {
     <p>Year: ${year}</p>
     <p>Rating: ${movie.vote_average}</p>
     <div class="buttons-row">
-      <button class="watch-button" onclick="toggleTrailer('${movie.id}')">🎬</button>
-      <button class="watch-button" onclick="toggleFavorite(${movie.id}, this)">${isFav ? '💔' : '❤️'}</button>
+      <button class="watch-button" onclick="toggleTrailer('${movie.id}')">${watchText}</button>
+      <button class="watch-button" onclick="toggleFavorite(${movie.id}, this)">${favText}</button>
     </div> ${trailerEmbed}
   `;
   return card;
@@ -166,8 +170,16 @@ function isFavorite(id) { const arr = JSON.parse(localStorage.getItem('favorites
 function toggleFavorite(id, btn) {
   const arr = JSON.parse(localStorage.getItem('favorites') || '[]');
   const idx = arr.indexOf(id);
-  if (idx > -1) { arr.splice(idx,1); btn.textContent = '❤️ Add to Favorites'; }
-  else { arr.push(id); btn.textContent = '💔 Remove Favorite'; }
+  const isMobile = window.innerWidth <= 768;
+  
+  if (idx > -1) { 
+    arr.splice(idx, 1); 
+    btn.textContent = isMobile ? '❤️' : '❤️ Add to Favorites'; 
+  } else { 
+    arr.push(id); 
+    btn.textContent = isMobile ? '💔' : '💔 Remove Favorite'; 
+  }
+  
   localStorage.setItem('favorites', JSON.stringify(arr));
   updateStats(0, false);
 }
