@@ -172,14 +172,18 @@ async function openModal(id) {
   modal.style.display = 'flex';
   const body = document.getElementById('modal-details');
   
-  // Show a nicer loading indicator
+  // Show a smaller loading indicator on mobile
+  const isMobile = window.innerWidth <= 768;
+  const spinnerSize = isMobile ? '20px' : '30px';
+  
   body.innerHTML = `
-    <div style="display:flex; align-items:center; justify-content:center; flex-direction:column; padding:40px;">
-      <div style="width:30px; height:30px; border:3px solid #23232b; border-top:3px solid #ff4b6e; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>
-      <p>Loading movie details...</p>
+    <div style="display:flex; align-items:center; justify-content:center; flex-direction:column; padding:${isMobile ? '20px' : '40px'};">
+      <div style="width:${spinnerSize}; height:${spinnerSize}; border:3px solid #23232b; border-top:3px solid #ff4b6e; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:10px;"></div>
+      <p style="font-size:${isMobile ? '14px' : '16px'};">Loading movie details...</p>
     </div>
   `;
 
+  // Fetch movie data
   const [m,c,p,r] = await Promise.all([
     fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`).then(r=>r.json()),
     fetch(`${BASE_URL}/movie/${id}/credits?api_key=${API_KEY}`).then(r=>r.json()),
@@ -189,20 +193,32 @@ async function openModal(id) {
 
   const cast = c.cast.slice(0,5).map(x=>x.name).join(', ');
   const providers = (p.results?.US?.flatrate || []).map(x=>x.provider_name).join(', ') || 'Not available';
-  const related = r.results.slice(0,6).map(x=>`<img src="https://image.tmdb.org/t/p/w200${x.poster_path}" onclick="openModal(${x.id})" title="${x.title}" />`).join('');
+  
+  // Show fewer related movies on mobile
+  const numRelated = isMobile ? 4 : 6;
+  const related = r.results.slice(0,numRelated).map(x=>
+    `<img src="https://image.tmdb.org/t/p/${isMobile ? 'w92' : 'w200'}${x.poster_path}" 
+    onclick="openModal(${x.id})" title="${x.title}" />`
+  ).join('');
 
+  // More compact layout for mobile
   body.innerHTML = `
-    <h2>${m.title}</h2>
+    <h2 style="margin-top:0;font-size:${isMobile ? '1.5rem' : '2rem'}">${m.title}</h2>
     <p><strong>Overview:</strong> ${m.overview}</p>
     <p><strong>Cast:</strong> ${cast}</p>
     <p><strong>Runtime:</strong> ${m.runtime} mins • <strong>Released:</strong> ${m.release_date}</p>
     <p><strong>Watch Providers:</strong> ${providers}</p>
     <h3>Related Movies</h3><div class="related-movies">${related}</div>
+    ${isMobile ? '<button onclick="closeModal()" style="width:100%;margin-top:1rem;padding:0.6rem;background:#ff4b6e;border:none;color:white;border-radius:0.5rem;font-weight:bold">Close</button>' : ''}
   `;
+  
+  // Prevent body scrolling when modal is open
+  document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
   document.getElementById('movieModal').style.display = 'none';
+  document.body.style.overflow = 'auto'; // Re-enable scrolling
 }
 
 // ----- Event Listeners -----
@@ -233,13 +249,17 @@ window.addEventListener('scroll', ()=> {
 function showSpinner() {
   // Create a minimal loading indicator if it doesn't exist
   let spinner = document.getElementById('loadingSpinner');
+  const isMobile = window.innerWidth <= 768;
+  
   if (!spinner) {
     spinner = document.createElement('div');
     spinner.id = 'loadingSpinner';
+    
+    // Smaller, more compact spinner for mobile
     spinner.innerHTML = `
       <div class="spinner-container">
         <div class="spinner-circle"></div>
-        <div class="spinner-text">Loading...</div>
+        ${isMobile ? '' : '<div class="spinner-text">Loading...</div>'}
       </div>
     `;
     document.body.appendChild(spinner);
@@ -251,10 +271,10 @@ function showSpinner() {
       style.textContent = `
         #loadingSpinner {
           position: fixed;
-          bottom: 20px;
-          right: 20px;
+          bottom: ${isMobile ? '10px' : '20px'};
+          right: ${isMobile ? '10px' : '20px'};
           background: rgba(24, 24, 28, 0.85);
-          padding: 10px 20px;
+          padding: ${isMobile ? '8px' : '10px 20px'};
           border-radius: 30px;
           box-shadow: 0 4px 12px rgba(0,0,0,0.15);
           color: #fff;
@@ -267,13 +287,13 @@ function showSpinner() {
         .spinner-container {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: ${isMobile ? '0' : '10px'};
         }
         .spinner-circle {
-          width: 18px;
-          height: 18px;
-          border: 3px solid #23232b;
-          border-top: 3px solid #ff4b6e;
+          width: ${isMobile ? '14px' : '18px'};
+          height: ${isMobile ? '14px' : '18px'};
+          border: ${isMobile ? '2px' : '3px'} solid #23232b;
+          border-top: ${isMobile ? '2px' : '3px'} solid #ff4b6e;
           border-radius: 50%;
           animation: spin 1s linear infinite;
         }
