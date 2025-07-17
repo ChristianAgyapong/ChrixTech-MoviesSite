@@ -169,9 +169,16 @@ function updateStats(count = 0, append = false) {
 // ----- Modal Logic -----
 async function openModal(id) {
   const modal = document.getElementById('movieModal');
-  modal.style.display = 'block';
+  modal.style.display = 'flex';
   const body = document.getElementById('modal-details');
-  body.innerHTML = 'Loading...';
+  
+  // Show a nicer loading indicator
+  body.innerHTML = `
+    <div style="display:flex; align-items:center; justify-content:center; flex-direction:column; padding:40px;">
+      <div style="width:30px; height:30px; border:3px solid #23232b; border-top:3px solid #ff4b6e; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>
+      <p>Loading movie details...</p>
+    </div>
+  `;
 
   const [m,c,p,r] = await Promise.all([
     fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`).then(r=>r.json()),
@@ -224,8 +231,71 @@ window.addEventListener('scroll', ()=> {
 });
 
 function showSpinner() {
-  document.getElementById('loadingSpinner').style.display = 'block';
+  // Create a minimal loading indicator if it doesn't exist
+  let spinner = document.getElementById('loadingSpinner');
+  if (!spinner) {
+    spinner = document.createElement('div');
+    spinner.id = 'loadingSpinner';
+    spinner.innerHTML = `
+      <div class="spinner-container">
+        <div class="spinner-circle"></div>
+        <div class="spinner-text">Loading...</div>
+      </div>
+    `;
+    document.body.appendChild(spinner);
+    
+    // Add the style if it doesn't exist
+    if (!document.getElementById('spinner-style')) {
+      const style = document.createElement('style');
+      style.id = 'spinner-style';
+      style.textContent = `
+        #loadingSpinner {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          background: rgba(24, 24, 28, 0.85);
+          padding: 10px 20px;
+          border-radius: 30px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          color: #fff;
+          font-size: 14px;
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          transition: opacity 0.3s;
+        }
+        .spinner-container {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .spinner-circle {
+          width: 18px;
+          height: 18px;
+          border: 3px solid #23232b;
+          border-top: 3px solid #ff4b6e;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        .spinner-text {
+          font-weight: 500;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+  
+  spinner.style.display = 'block';
+  spinner.style.opacity = '1';
 }
+
 function hideSpinner() {
-  document.getElementById('loadingSpinner').style.display = 'none';
+  const spinner = document.getElementById('loadingSpinner');
+  if (spinner) {
+    spinner.style.opacity = '0';
+    setTimeout(() => {
+      spinner.style.display = 'none';
+    }, 300);
+  }
 }

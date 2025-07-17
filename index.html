@@ -207,6 +207,66 @@
     .related-movies img:hover {
       border-color: #ff4b6e;
     }
+    
+    /* Mobile Responsiveness Improvements */
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+      
+      .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      
+      .nav-links .nav-btn {
+        margin: 0.2rem;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.9rem;
+      }
+      
+      .hero {
+        padding: 1.5rem 1rem;
+      }
+      
+      .hero-title {
+        font-size: 2rem;
+      }
+      
+      .search-bar input, 
+      .search-bar select {
+        width: 100%;
+        min-width: unset;
+      }
+      
+      #movies {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+      }
+      
+      .movie img {
+        height: 220px;
+      }
+      
+      .movie h3 {
+        font-size: 1rem;
+      }
+      
+      /* Modal adjustments for mobile */
+      #movieModal > div {
+        width: 90%;
+        max-width: 90%;
+        margin: 10vh auto;
+        padding: 1.5rem;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+    }
   </style>
 </head>
 <body>
