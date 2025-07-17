@@ -17,7 +17,14 @@ let currentGenre = '';
 let currentMode = 'trending';
 let isFetching = false;
 
-init();
+const movieCache = new Map(); // Cache for movie data
+const trailerCache = new Map(); // Cache for trailer data
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
 
 // ----- Initialization -----
 function init() {
@@ -85,9 +92,18 @@ async function fetchMoviesByGenre(genreId, append = false) {
 
 // ----- Fetch Trailer -----
 async function fetchTrailer(movieId) {
+  // Check cache first
+  if (trailerCache.has(movieId)) {
+    return trailerCache.get(movieId);
+  }
+  
   const res = await fetch(`${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}`);
   const data = await res.json();
-  return data.results.find(iv => iv.type === 'Trailer');
+  const trailer = data.results.find(iv => iv.type === 'Trailer');
+  
+  // Store in cache
+  trailerCache.set(movieId, trailer);
+  return trailer;
 }
 function getVideoEmbedURL(v) {
   if (!v) return '';
@@ -107,19 +123,25 @@ async function createMovieCard(movie) {
   card.className = 'movie';
 
   const trailer = await fetchTrailer(movie.id);
-  const poster = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '';
+  
+  // Optimize image loading - use smaller images for mobile
+  const isMobile = window.innerWidth <= 768;
+  const imageSize = isMobile ? 'w300' : 'w500'; // Smaller images on mobile
+  const poster = movie.poster_path ? `https://image.tmdb.org/t/p/${imageSize}${movie.poster_path}` : '';
+  
   const year = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A';
   const isFav = isFavorite(movie.id);
   const trailerEmbed = trailer ? `<div class="trailer" id="trailer-${movie.id}" style="display:none;"><iframe src="${getVideoEmbedURL(trailer)}" allowfullscreen></iframe></div>` : '';
 
+  // Implement lazy loading
   card.innerHTML = `
-    <img src="${poster}" alt="${movie.title}" onclick="openModal(${movie.id})">
+    <img loading="lazy" src="${poster}" alt="${movie.title}" onclick="openModal(${movie.id})">
     <h3>${movie.title}</h3>
     <p>Year: ${year}</p>
     <p>Rating: ${movie.vote_average}</p>
     <div class="buttons-row">
-      <button class="watch-button" onclick="toggleTrailer('${movie.id}')">🎬 Watch Trailer</button>
-      <button class="watch-button" onclick="toggleFavorite(${movie.id}, this)">${isFav ? '💔 Remove Favorite' : '❤️ Add to Favorites'}</button>
+      <button class="watch-button" onclick="toggleTrailer('${movie.id}')">🎬</button>
+      <button class="watch-button" onclick="toggleFavorite(${movie.id}, this)">${isFav ? '💔' : '❤️'}</button>
     </div> ${trailerEmbed}
   `;
   return card;
@@ -183,6 +205,14 @@ async function openModal(id) {
     </div>
   `;
 
+  // Check cache first
+  const cacheKey = `movie-${id}`;
+  if (movieCache.has(cacheKey)) {
+    const cachedData = movieCache.get(cacheKey);
+    renderModalContent(cachedData.m, cachedData.c, cachedData.p, cachedData.r);
+    return;
+  }
+
   // Fetch movie data
   const [m,c,p,r] = await Promise.all([
     fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`).then(r=>r.json()),
@@ -190,14 +220,25 @@ async function openModal(id) {
     fetch(`${BASE_URL}/movie/${id}/watch/providers?api_key=${API_KEY}`).then(r=>r.json()),
     fetch(`${BASE_URL}/movie/${id}/similar?api_key=${API_KEY}`).then(r=>r.json())
   ]);
+  
+  // Store in cache
+  movieCache.set(cacheKey, {m, c, p, r});
+  
+  renderModalContent(m, c, p, r);
+}
 
+// Separate function for rendering modal content
+function renderModalContent(m, c, p, r) {
+  const isMobile = window.innerWidth <= 768;
+  const body = document.getElementById('modal-details');
+  
   const cast = c.cast.slice(0,5).map(x=>x.name).join(', ');
   const providers = (p.results?.US?.flatrate || []).map(x=>x.provider_name).join(', ') || 'Not available';
   
   // Show fewer related movies on mobile
   const numRelated = isMobile ? 4 : 6;
   const related = r.results.slice(0,numRelated).map(x=>
-    `<img src="https://image.tmdb.org/t/p/${isMobile ? 'w92' : 'w200'}${x.poster_path}" 
+    `<img loading="lazy" src="https://image.tmdb.org/t/p/${isMobile ? 'w92' : 'w200'}${x.poster_path}" 
     onclick="openModal(${x.id})" title="${x.title}" />`
   ).join('');
 
@@ -237,14 +278,14 @@ upcomingButton.addEventListener('click', ()=>switchMode('upcoming'));
 favoritesButton.addEventListener('click', ()=>switchMode('favorites'));
 
 // ----- Infinite Scroll -----
-window.addEventListener('scroll', ()=> {
+window.addEventListener('scroll', throttle(() => {
   if(window.innerHeight+window.scrollY >= document.body.offsetHeight-200 && !isFetching && currentMode!=='favorites') {
     currentPage++;
     if(['trending','top_rated','upcoming'].includes(currentMode)) fetchMoviesByMode(currentMode, true);
     else if(currentMode==='search') fetchMovies(currentQuery, true);
     else if(currentMode==='genre') fetchMoviesByGenre(currentGenre, true);
   }
-});
+}, 300)); // Check only every 300ms
 
 function showSpinner() {
   // Create a minimal loading indicator if it doesn't exist
@@ -318,4 +359,18 @@ function hideSpinner() {
       spinner.style.display = 'none';
     }, 300);
   }
+}
+
+// Add this throttle function
+function throttle(func, limit) {
+  let inThrottle;
+  return function() {
+    const args = arguments;
+    const context = this;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
 }
