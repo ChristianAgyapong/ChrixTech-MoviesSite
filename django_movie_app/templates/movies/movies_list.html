@@ -90,7 +90,7 @@
             <h3 class="movie-title">{{ movie.title }}</h3>
             <div class="movie-meta">
                 {% if movie.release_date %}{{ movie.release_date|slice:":4" }} • {% endif %}
-                ⭐ {{ movie.vote_average|floatformat:1 }}
+                <i class="fas fa-star text-warning"></i> {{ movie.vote_average|floatformat:1 }}
             </div>
             <div class="movie-actions">
                 <a href="{% url 'movies:movie_detail' movie.id %}" class="btn-action btn-watch">

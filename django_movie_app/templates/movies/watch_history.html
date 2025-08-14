@@ -24,7 +24,7 @@
             <div class="movie-meta">
                 Watched {{ watch.watched_at|date:"M d, Y" }} at {{ watch.watched_at|time:"g:i A" }}<br>
                 {% if watch.movie.release_date %}{{ watch.movie.release_date.year }} • {% endif %}
-                ⭐ {{ watch.movie.vote_average|floatformat:1 }}
+                <i class="fas fa-star text-warning"></i> {{ watch.movie.vote_average|floatformat:1 }}
             </div>
             <div class="movie-actions">
                 <a href="{% url 'movies:movie_detail' watch.movie.tmdb_id %}" class="btn-action btn-watch">

@@ -1,0 +1,23 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+{{ block.super }}
+
+<div class="module" style="margin-top: 20px;">
+    <table>
+        <caption>
+            <i class="fas fa-chart-bar"></i> Watch History Analytics
+        </caption>
+        <tbody>
+            <tr>
+                <th scope="row">
+                    <a href="{% url 'admin:users_watch_summary' %}">User Watch Summary</a>
+                </th>
+                <td>
+                    View users grouped by their watch history instead of individual records
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

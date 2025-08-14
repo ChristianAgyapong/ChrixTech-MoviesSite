@@ -257,15 +257,30 @@ async function addToWatchHistory(tmdbId, element = null) {
     return true;
 }
 
-// Show message notification
+// Show message notification with Font Awesome icons
 function showMessage(message, type = 'info') {
     const messagesContainer = document.querySelector('.messages') || createMessagesContainer();
+    
+    // Define icons for different message types
+    const icons = {
+        'success': '<i class="fas fa-check-circle"></i>',
+        'error': '<i class="fas fa-exclamation-triangle"></i>',
+        'warning': '<i class="fas fa-exclamation-circle"></i>',
+        'info': '<i class="fas fa-info-circle"></i>'
+    };
+    
+    const icon = icons[type] || icons['info'];
     
     const messageDiv = document.createElement('div');
     messageDiv.className = `message message-${type}`;
     messageDiv.innerHTML = `
-        ${message}
-        <button class="close-message" onclick="this.parentElement.remove()">×</button>
+        <div class="message-content">
+            ${icon}
+            <span>${message}</span>
+        </div>
+        <button class="close-message" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
     `;
     
     messagesContainer.appendChild(messageDiv);

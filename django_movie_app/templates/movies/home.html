@@ -47,7 +47,7 @@
                 <h3 class="movie-title">{{ favorite.movie.title }}</h3>
                 <div class="movie-meta">
                     {% if favorite.movie.release_date %}{{ favorite.movie.release_date.year }} • {% endif %}
-                    ⭐ {{ favorite.movie.vote_average|floatformat:1 }}
+                    <i class="fas fa-star text-warning"></i> {{ favorite.movie.vote_average|floatformat:1 }}
                 </div>
                 <div class="movie-actions">
                     <a href="{% url 'movies:movie_detail' favorite.movie.tmdb_id %}" class="btn-action btn-watch">
@@ -87,7 +87,7 @@
                 <h3 class="movie-title">{{ history.movie.title }}</h3>
                 <div class="movie-meta">
                     Watched {{ history.watched_at|date:"M d, Y" }}<br>
-                    ⭐ {{ history.movie.vote_average|floatformat:1 }}
+                                        <i class="fas fa-star text-warning"></i> {{ entry.movie.vote_average|floatformat:1 }}
                 </div>
                 <div class="movie-actions">
                     <a href="{% url 'movies:movie_detail' history.movie.tmdb_id %}" class="btn-action btn-watch">

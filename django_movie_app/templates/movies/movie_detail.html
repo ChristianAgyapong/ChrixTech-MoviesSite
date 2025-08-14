@@ -34,7 +34,7 @@
                 <div style="display: flex; gap: 2rem; margin-bottom: 1rem; flex-wrap: wrap;">
                     <div>
                         <strong style="color: #ff4b6e;">Rating:</strong>
-                        <span style="font-size: 1.2rem;">⭐ {{ movie_data.vote_average|floatformat:1 }}</span>
+                        <span style="font-size: 1.2rem;"><i class="fas fa-star text-warning"></i> {{ movie_data.vote_average|floatformat:1 }}</span>
                         <small style="color: #bbb;">({{ movie_data.vote_count }} votes)</small>
                     </div>
                     {% if movie_data.runtime %}
@@ -149,7 +149,7 @@
                     <div class="movie-info">
                         <h4 class="movie-title" style="font-size: 0.9rem;">{{ similar.title }}</h4>
                         <div class="movie-meta" style="font-size: 0.8rem;">
-                            ⭐ {{ similar.vote_average|floatformat:1 }}
+                            <i class="fas fa-star text-warning"></i> {{ similar.vote_average|floatformat:1 }}
                         </div>
                     </div>
                 </div>

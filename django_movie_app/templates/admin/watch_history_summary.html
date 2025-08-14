@@ -1,0 +1,196 @@
+{% extends "admin/base_site.html" %}
+{% load admin_urls %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extrahead %}
+<style>
+    .user-summary {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 10px 0;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .user-summary:hover {
+        background: #e9ecef;
+    }
+    
+    .user-summary.selected {
+        background: #d4edda;
+        border-color: #c3e6cb;
+    }
+    
+    .user-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .user-name {
+        font-weight: bold;
+        font-size: 16px;
+        color: #495057;
+    }
+    
+    .user-stats {
+        display: flex;
+        gap: 15px;
+    }
+    
+    .stat-item {
+        background: #007bff;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .watch-details {
+        margin-top: 20px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 20px;
+    }
+    
+    .movie-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .movie-item:last-child {
+        border-bottom: none;
+    }
+    
+    .movie-title {
+        font-weight: bold;
+        color: #495057;
+    }
+    
+    .watch-date {
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .rating {
+        color: #ffc107;
+        font-weight: bold;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #007bff;
+        text-decoration: none;
+    }
+    
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    
+    .no-selection {
+        text-align: center;
+        color: #6c757d;
+        font-style: italic;
+        padding: 40px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+    
+    .page-header {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .summary-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ title }}</h1>
+    <p>Click on any user to view their complete watch history</p>
+</div>
+
+<div class="summary-grid">
+    <div class="users-list">
+        <h2>Users ({{ users_with_history.count }})</h2>
+        
+        {% for user in users_with_history %}
+        <div class="user-summary {% if selected_user.id == user.id %}selected{% endif %}" 
+             onclick="window.location.href='?user_id={{ user.id }}'">
+            <div class="user-info">
+                <div class="user-name">
+                    {{ user.username }}
+                    {% if user.first_name or user.last_name %}
+                        ({{ user.first_name }} {{ user.last_name }})
+                    {% endif %}
+                </div>
+                <div class="user-stats">
+                    <span class="stat-item">{{ user.movies_watched }} Movies</span>
+                    <span class="stat-item">{{ user.total_watches }} Watches</span>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>No users have watch history yet.</p>
+        {% endfor %}
+    </div>
+    
+    <div class="watch-details-container">
+        {% if selected_user %}
+            {% if request.GET.user_id %}
+                <a href="?" class="back-link">← Back to all users</a>
+            {% endif %}
+            
+            <div class="watch-details">
+                <h2>{{ selected_user.username }}'s Watch History</h2>
+                <p><strong>Total movies watched:</strong> {{ user_watch_details.count }}</p>
+                
+                {% if user_watch_details %}
+                    <div class="movie-list">
+                        {% for watch in user_watch_details %}
+                        <div class="movie-item">
+                            <div>
+                                <div class="movie-title">{{ watch.movie.title }}</div>
+                                <div class="watch-date">Watched on {{ watch.watched_at|date:"M d, Y \at H:i" }}</div>
+                            </div>
+                            <div>
+                                <span class="rating">★ {{ watch.movie.vote_average|floatformat:1 }}/10</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No watch history found.</p>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="no-selection">
+                <h3>Select a user to view their watch history</h3>
+                <p>Click on any user from the list to see all movies they have watched.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
