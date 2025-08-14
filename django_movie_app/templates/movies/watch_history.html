@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Watch History - Cinema Chronicles{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h1 class="section-title">
+        <i class="fas fa-history"></i> My Watch History
+    </h1>
+</div>
+
+{% if history %}
+<div class="movies-grid">
+    {% for watch in history %}
+    <div class="movie-card">
+        <img 
+            src="https://image.tmdb.org/t/p/w300{{ watch.movie.poster_path }}" 
+            alt="{{ watch.movie.title }}"
+            class="movie-poster"
+            data-movie-id="{{ watch.movie.tmdb_id }}"
+        >
+        <div class="movie-info">
+            <h3 class="movie-title">{{ watch.movie.title }}</h3>
+            <div class="movie-meta">
+                Watched {{ watch.watched_at|date:"M d, Y" }} at {{ watch.watched_at|time:"g:i A" }}<br>
+                {% if watch.movie.release_date %}{{ watch.movie.release_date.year }} • {% endif %}
+                ⭐ {{ watch.movie.vote_average|floatformat:1 }}
+            </div>
+            <div class="movie-actions">
+                <a href="{% url 'movies:movie_detail' watch.movie.tmdb_id %}" class="btn-action btn-watch">
+                    <i class="fas fa-play"></i> View Details
+                </a>
+                <button onclick="addToWatchHistory({{ watch.movie.tmdb_id }}, this)" class="btn-action" style="background: #17a2b8;">
+                    <i class="fas fa-history"></i> Re-watch
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if history.has_other_pages %}
+<div class="pagination">
+    {% if history.has_previous %}
+        <a href="?page=1" class="page-btn">&laquo; First</a>
+        <a href="?page={{ history.previous_page_number }}" class="page-btn">
+            <i class="fas fa-chevron-left"></i> Previous
+        </a>
+    {% endif %}
+    
+    <span class="page-info">
+        Page {{ history.number }} of {{ history.paginator.num_pages }}
+    </span>
+    
+    {% if history.has_next %}
+        <a href="?page={{ history.next_page_number }}" class="page-btn">
+            Next <i class="fas fa-chevron-right"></i>
+        </a>
+        <a href="?page={{ history.paginator.num_pages }}" class="page-btn">Last &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="section" style="text-align: center; padding: 3rem;">
+    <i class="fas fa-film" style="font-size: 4rem; color: #ff4b6e; margin-bottom: 1rem;"></i>
+    <h2 style="color: #ff4b6e; margin-bottom: 1rem;">No watch history yet</h2>
+    <p style="color: #e0e0e0; margin-bottom: 2rem;">
+        Start watching movies to build your history!
+    </p>
+    <a href="{% url 'movies:movies_list' %}" class="btn btn-primary">
+        <i class="fas fa-search"></i> Discover Movies
+    </a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ movie_data.title }} - Cinema Chronicles{% endblock %}
+
+{% block content %}
+<div class="movie-detail">
+    <div class="movie-hero" style="
+        background: linear-gradient(rgba(24,24,28,0.8), rgba(24,24,28,0.9)), 
+        url('https://image.tmdb.org/t/p/w1280{{ movie_data.backdrop_path }}') center/cover;
+        padding: 2rem;
+        border-radius: 0 0 2rem 2rem;
+        margin-bottom: 2rem;
+    ">
+        <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+            <img 
+                src="https://image.tmdb.org/t/p/w400{{ movie_data.poster_path }}" 
+                alt="{{ movie_data.title }}"
+                style="width: 300px; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5);"
+            >
+            <div style="flex: 1; min-width: 300px;">
+                <h1 style="font-size: 2.5rem; color: #ff4b6e; margin-bottom: 0.5rem;">
+                    {{ movie_data.title }}
+                    {% if movie_data.release_date %}
+                        <span style="font-size: 1.5rem; color: #ffb86b;">({{ movie_data.release_date|slice:":4" }})</span>
+                    {% endif %}
+                </h1>
+                
+                {% if movie_data.tagline %}
+                <p style="font-style: italic; color: #ffb86b; font-size: 1.2rem; margin-bottom: 1rem;">
+                    "{{ movie_data.tagline }}"
+                </p>
+                {% endif %}
+                
+                <div style="display: flex; gap: 2rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <div>
+                        <strong style="color: #ff4b6e;">Rating:</strong>
+                        <span style="font-size: 1.2rem;">⭐ {{ movie_data.vote_average|floatformat:1 }}</span>
+                        <small style="color: #bbb;">({{ movie_data.vote_count }} votes)</small>
+                    </div>
+                    {% if movie_data.runtime %}
+                    <div>
+                        <strong style="color: #ff4b6e;">Runtime:</strong>
+                        <span>{{ movie_data.runtime }} minutes</span>
+                    </div>
+                    {% endif %}
+                    {% if movie_data.release_date %}
+                    <div>
+                        <strong style="color: #ff4b6e;">Released:</strong>
+                        <span>{{ movie_data.release_date|date:"F d, Y" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if movie_data.genres %}
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: #ff4b6e;">Genres:</strong>
+                    {% for genre in movie_data.genres %}
+                        <span style="background: #23232b; padding: 0.3rem 0.8rem; border-radius: 1rem; margin: 0.2rem; display: inline-block; border: 1px solid #ff4b6e;">
+                            {{ genre.name }}
+                        </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button onclick="toggleFavorite({{ movie_data.id }}, this)" class="btn {% if is_favorite %}btn-secondary{% else %}btn-primary{% endif %}">
+                        <i class="{% if is_favorite %}fas{% else %}far{% endif %} fa-heart"></i>
+                        {% if is_favorite %}Remove from Favorites{% else %}Add to Favorites{% endif %}
+                    </button>
+                    
+                    <!-- Show automatic watch status -->
+                    <div class="watch-status">
+                        <i class="fas fa-eye text-success"></i>
+                        <span class="text-success">Automatically added to watch history</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="padding: 0 2rem;">
+        {% if movie_data.overview %}
+        <section style="margin-bottom: 2rem;">
+            <h2 style="color: #ff4b6e; margin-bottom: 1rem;">
+                <i class="fas fa-align-left"></i> Overview
+            </h2>
+            <p style="font-size: 1.1rem; line-height: 1.6; color: #e0e0e0;">
+                {{ movie_data.overview }}
+            </p>
+        </section>
+        {% endif %}
+        
+        {% if credits.cast %}
+        <section style="margin-bottom: 2rem;">
+            <h2 style="color: #ff4b6e; margin-bottom: 1rem;">
+                <i class="fas fa-users"></i> Cast
+            </h2>
+            <div style="display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem;">
+                {% for actor in credits.cast|slice:":10" %}
+                <div style="min-width: 150px; text-align: center; background: #23232b; padding: 1rem; border-radius: 1rem; border: 2px solid #3a3a3a;">
+                    {% if actor.profile_path %}
+                    <img 
+                        src="https://image.tmdb.org/t/p/w185{{ actor.profile_path }}" 
+                        alt="{{ actor.name }}"
+                        style="width: 100px; height: 150px; object-fit: cover; border-radius: 0.5rem; margin-bottom: 0.5rem;"
+                    >
+                    {% else %}
+                    <div style="width: 100px; height: 150px; background: #3a3a3a; border-radius: 0.5rem; margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user" style="font-size: 2rem; color: #666;"></i>
+                    </div>
+                    {% endif %}
+                    <div style="font-weight: bold; color: #fff; margin-bottom: 0.25rem;">{{ actor.name }}</div>
+                    <div style="font-size: 0.9rem; color: #bbb;">{{ actor.character }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+        
+        {% if trailer %}
+        <section style="margin-bottom: 2rem;">
+            <h2 style="color: #ff4b6e; margin-bottom: 1rem;">
+                <i class="fas fa-play"></i> Trailer
+            </h2>
+            <div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; border-radius: 1rem; overflow: hidden;">
+                <iframe 
+                    src="https://www.youtube.com/embed/{{ trailer.key }}"
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </section>
+        {% endif %}
+        
+        {% if similar_movies %}
+        <section style="margin-bottom: 2rem;">
+            <h2 style="color: #ff4b6e; margin-bottom: 1rem;">
+                <i class="fas fa-film"></i> Similar Movies
+            </h2>
+            <div class="movies-grid" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
+                {% for similar in similar_movies %}
+                <div class="movie-card" style="cursor: pointer;" onclick="window.location.href='{% url 'movies:movie_detail' similar.id %}'">
+                    <img 
+                        src="https://image.tmdb.org/t/p/w300{{ similar.poster_path }}" 
+                        alt="{{ similar.title }}"
+                        class="movie-poster"
+                        style="height: 225px;"
+                    >
+                    <div class="movie-info">
+                        <h4 class="movie-title" style="font-size: 0.9rem;">{{ similar.title }}</h4>
+                        <div class="movie-meta" style="font-size: 0.8rem;">
+                            ⭐ {{ similar.vote_average|floatformat:1 }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+@media (max-width: 768px) {
+    .movie-hero > div {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .movie-hero img {
+        width: 250px;
+        align-self: center;
+    }
+    
+    .movie-hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    .movie-hero > div > div:last-child {
+        min-width: auto;
+    }
+}
+</style>
+{% endblock %}

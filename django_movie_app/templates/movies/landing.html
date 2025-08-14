@@ -1,0 +1,467 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to Cinema Chronicles{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <!-- Hero Section -->
+    <section class="landing-hero">
+        <div class="hero-content">
+            <h1 class="landing-title">
+                <i class="fas fa-film"></i> 
+                Cinema Chronicles
+            </h1>
+            <p class="landing-subtitle">
+                Your Ultimate Movie Discovery Platform
+            </p>
+            <p class="hero-description">
+                Discover blockbusters, hidden gems, and timeless classics. Build your personal movie collection, 
+                track your favorites, and explore cinema like never before.
+            </p>
+            
+            <div class="landing-buttons">
+                <a href="{% url 'accounts:login' %}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </a>
+                <a href="{% url 'accounts:register' %}" class="btn btn-secondary">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i> Why Choose Cinema Chronicles?
+            </h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Discover Movies</h3>
+                    <p>Explore trending movies, top-rated films, and upcoming releases. Search by genre, title, or browse curated collections.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Build Your Collection</h3>
+                    <p>Create your personal favorites list and keep track of movies you love. Never lose sight of your must-watch films.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>Track Your Journey</h3>
+                    <p>Monitor your watch history and see your movie-watching patterns. Discover new genres based on your preferences.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <h3>Watch Trailers</h3>
+                    <p>View movie trailers, read detailed information, cast details, and similar movie recommendations all in one place.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Friendly</h3>
+                    <p>Enjoy seamless movie browsing on any device. Our responsive design works perfectly on mobile, tablet, and desktop.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>Rich Movie Data</h3>
+                    <p>Access comprehensive movie information powered by The Movie Database (TMDB) with up-to-date content and ratings.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <h2 class="section-title">Experience Cinema Like Never Before</h2>
+            <div class="stats-row">
+                <div class="stat-card">
+                    <i class="fas fa-film"></i>
+                    <div class="stat-number">500K+</div>
+                    <div class="stat-label">Movies Available</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div class="stat-number">Growing</div>
+                    <div class="stat-label">Community</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-star"></i>
+                    <div class="stat-number">HD</div>
+                    <div class="stat-label">Quality Content</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to Start Your Movie Journey?</h2>
+            <p>Join Cinema Chronicles today and discover your next favorite movie!</p>
+            <div class="cta-buttons">
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-large">
+                    <i class="fas fa-rocket"></i> Get Started Free
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3><i class="fas fa-film"></i> Cinema Chronicles</h3>
+                    <p>Your ultimate movie discovery platform</p>
+                </div>
+                <div class="footer-info">
+                    <p>&copy; 2025 Christian Agyapong. All rights reserved.</p>
+                    <p>Powered by <a href="https://www.themoviedb.org/" target="_blank">The Movie Database (TMDB)</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<style>
+/* === Landing Page Styles === */
+.landing-container {
+    background: linear-gradient(135deg, #2d1a2e 0%, #18181c 50%, #1a1a2e 100%);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Hero Section */
+.landing-hero {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: radial-gradient(ellipse at center, rgba(255, 75, 110, 0.1) 0%, transparent 70%);
+    animation: fadeInUp 1s ease-out;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.landing-title {
+    font-size: 4rem;
+    background: linear-gradient(90deg, #ff4b6e, #ffb86b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.landing-subtitle {
+    font-size: 1.8rem;
+    color: #ffb86b;
+    margin-bottom: 1rem;
+    font-weight: 300;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.landing-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+/* About Section */
+.about-section {
+    padding: 4rem 0;
+    background: rgba(35, 35, 43, 0.3);
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #fff;
+    margin-bottom: 3rem;
+    font-weight: 600;
+}
+
+.section-title i {
+    color: #ff4b6e;
+    margin-right: 0.5rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.feature-card {
+    background: rgba(35, 35, 43, 0.6);
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.feature-card:hover {
+    border-color: #ff4b6e;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(255, 75, 110, 0.3);
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ff4b6e, #ffb86b);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    color: white;
+}
+
+.feature-card h3 {
+    color: #fff;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.feature-card p {
+    color: #ccc;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+/* Stats Section */
+.stats-section {
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.stat-card {
+    background: rgba(255, 75, 110, 0.1);
+    border: 2px solid #ff4b6e;
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    min-width: 200px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    background: rgba(255, 75, 110, 0.2);
+    transform: scale(1.05);
+}
+
+.stat-card i {
+    font-size: 3rem;
+    color: #ff4b6e;
+    margin-bottom: 1rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #ffb86b;
+    font-weight: 500;
+}
+
+/* CTA Section */
+.cta-section {
+    padding: 4rem 0;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(255, 75, 110, 0.1) 0%, rgba(255, 184, 107, 0.1) 100%);
+}
+
+.cta-section h2 {
+    font-size: 2.5rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.cta-section p {
+    font-size: 1.2rem;
+    color: #e0e0e0;
+    margin-bottom: 2rem;
+}
+
+.btn-large {
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Footer */
+.landing-footer {
+    background: #18181c;
+    padding: 2rem 0;
+    border-top: 2px solid #ff4b6e;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-brand h3 {
+    color: #ff4b6e;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.footer-brand p {
+    color: #ccc;
+    margin: 0;
+}
+
+.footer-info {
+    text-align: right;
+}
+
+.footer-info p {
+    color: #ccc;
+    margin: 0.2rem 0;
+    font-size: 0.9rem;
+}
+
+.footer-info a {
+    color: #ff4b6e;
+    text-decoration: none;
+}
+
+.footer-info a:hover {
+    color: #ffb86b;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.feature-card,
+.stat-card {
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.feature-card:nth-child(1) { animation-delay: 0.1s; }
+.feature-card:nth-child(2) { animation-delay: 0.2s; }
+.feature-card:nth-child(3) { animation-delay: 0.3s; }
+.feature-card:nth-child(4) { animation-delay: 0.4s; }
+.feature-card:nth-child(5) { animation-delay: 0.5s; }
+.feature-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .landing-title {
+        font-size: 2.5rem;
+    }
+    
+    .landing-subtitle {
+        font-size: 1.3rem;
+    }
+    
+    .hero-description {
+        font-size: 1rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footer-info {
+        text-align: center;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .stats-row {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .landing-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn {
+        width: 200px;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}

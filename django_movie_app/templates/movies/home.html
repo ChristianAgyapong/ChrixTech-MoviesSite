@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Cinema Chronicles{% endblock %}
+
+{% block content %}
+<div class="home-hero">
+    <h1 class="home-title">Welcome back, {{ user.username }}!</h1>
+    <p class="home-subtitle">Continue your cinematic journey</p>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <i class="fas fa-heart"></i>
+        <div class="stat-number">{{ favorites_count }}</div>
+        <div class="stat-label">Favorites</div>
+    </div>
+    <div class="stat-card">
+        <i class="fas fa-history"></i>
+        <div class="stat-number">{{ watched_count }}</div>
+        <div class="stat-label">Movies Watched</div>
+    </div>
+    <div class="stat-card">
+        <i class="fas fa-user"></i>
+        <div class="stat-number">1</div>
+        <div class="stat-label">Movie Explorer</div>
+    </div>
+</div>
+
+{% if user_favorites %}
+<div class="section">
+    <h2 class="section-title">
+        <i class="fas fa-heart"></i> Your Favorites
+    </h2>
+    <div class="movies-grid">
+        {% for favorite in user_favorites %}
+        <div class="movie-card">
+            <img 
+                src="https://image.tmdb.org/t/p/w300{{ favorite.movie.poster_path }}" 
+                alt="{{ favorite.movie.title }}"
+                class="movie-poster"
+                data-movie-id="{{ favorite.movie.tmdb_id }}"
+            >
+            <div class="favorite-icon favorited" data-movie-id="{{ favorite.movie.tmdb_id }}">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="movie-info">
+                <h3 class="movie-title">{{ favorite.movie.title }}</h3>
+                <div class="movie-meta">
+                    {% if favorite.movie.release_date %}{{ favorite.movie.release_date.year }} • {% endif %}
+                    ⭐ {{ favorite.movie.vote_average|floatformat:1 }}
+                </div>
+                <div class="movie-actions">
+                    <a href="{% url 'movies:movie_detail' favorite.movie.tmdb_id %}" class="btn-action btn-watch">
+                        <i class="fas fa-play"></i> View Details
+                    </a>
+                    <button onclick="toggleFavorite({{ favorite.movie.tmdb_id }}, this)" class="btn-action btn-favorite favorited">
+                        <i class="fas fa-heart"></i> Favorited
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div style="text-align: center; margin-top: 1rem;">
+        <a href="{% url 'movies:favorites' %}" class="btn btn-secondary">
+            <i class="fas fa-heart"></i> View All Favorites
+        </a>
+    </div>
+</div>
+{% endif %}
+
+{% if user_watch_history %}
+<div class="section">
+    <h2 class="section-title">
+        <i class="fas fa-history"></i> Recently Watched
+    </h2>
+    <div class="movies-grid">
+        {% for history in user_watch_history %}
+        <div class="movie-card">
+            <img 
+                src="https://image.tmdb.org/t/p/w300{{ history.movie.poster_path }}" 
+                alt="{{ history.movie.title }}"
+                class="movie-poster"
+                data-movie-id="{{ history.movie.tmdb_id }}"
+            >
+            <div class="movie-info">
+                <h3 class="movie-title">{{ history.movie.title }}</h3>
+                <div class="movie-meta">
+                    Watched {{ history.watched_at|date:"M d, Y" }}<br>
+                    ⭐ {{ history.movie.vote_average|floatformat:1 }}
+                </div>
+                <div class="movie-actions">
+                    <a href="{% url 'movies:movie_detail' history.movie.tmdb_id %}" class="btn-action btn-watch">
+                        <i class="fas fa-play"></i> View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div style="text-align: center; margin-top: 1rem;">
+        <a href="{% url 'movies:watch_history' %}" class="btn btn-secondary">
+            <i class="fas fa-history"></i> View Full History
+        </a>
+    </div>
+</div>
+{% endif %}
+
+{% if not user_favorites and not user_watch_history %}
+<div class="section" style="text-align: center; padding: 3rem;">
+    <i class="fas fa-film" style="font-size: 4rem; color: #ff4b6e; margin-bottom: 1rem;"></i>
+    <h2 style="color: #ff4b6e; margin-bottom: 1rem;">Start Your Movie Journey</h2>
+    <p style="color: #e0e0e0; margin-bottom: 2rem;">
+        Discover amazing movies, add them to your favorites, and build your personal collection.
+    </p>
+    <a href="{% url 'movies:movies_list' %}" class="btn btn-primary">
+        <i class="fas fa-search"></i> Discover Movies
+    </a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account - Cinema Chronicles{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2 class="auth-title">
+        <i class="fas fa-user-plus"></i> Create Account
+    </h2>
+    
+    {% if form.errors %}
+        <div class="message message-error" style="margin-bottom: 1rem;">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    {{ error }}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">Email Address</label>
+            {{ form.email }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.password1.id_for_label }}">Password</label>
+            {{ form.password1 }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+            {{ form.password2 }}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
+        </div>
+    </form>
+    
+    <a href="{% url 'accounts:login' %}" class="form-link">
+        Already have an account? <strong>Sign in here</strong>
+    </a>
+    
+    <a href="{% url 'movies:landing' %}" class="form-link">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+</div>
+
+<style>
+.auth-container {
+    margin-top: 3rem;
+}
+
+.form-control {
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 10px rgba(255, 75, 110, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 75, 110, 0.3);
+}
+
+.form-link {
+    transition: all 0.3s;
+}
+
+.form-link:hover {
+    transform: translateX(5px);
+}
+</style>
+{% endblock %}

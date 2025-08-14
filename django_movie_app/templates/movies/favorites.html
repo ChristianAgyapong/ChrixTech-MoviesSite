@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}My Favorites - Cinema Chronicles{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h1 class="section-title">
+        <i class="fas fa-heart"></i> My Favorite Movies
+    </h1>
+</div>
+
+{% if favorites %}
+<div class="movies-grid">
+    {% for favorite in favorites %}
+    <div class="movie-card">
+        <img 
+            src="https://image.tmdb.org/t/p/w300{{ favorite.movie.poster_path }}" 
+            alt="{{ favorite.movie.title }}"
+            class="movie-poster"
+            data-movie-id="{{ favorite.movie.tmdb_id }}"
+        >
+        <div class="favorite-icon favorited" data-movie-id="{{ favorite.movie.tmdb_id }}">
+            <i class="fas fa-heart"></i>
+        </div>
+        <div class="movie-info">
+            <h3 class="movie-title">{{ favorite.movie.title }}</h3>
+            <div class="movie-meta">
+                Added {{ favorite.created_at|date:"M d, Y" }}<br>
+                {% if favorite.movie.release_date %}{{ favorite.movie.release_date.year }} • {% endif %}
+                ⭐ {{ favorite.movie.vote_average|floatformat:1 }}
+            </div>
+            <div class="movie-actions">
+                <a href="{% url 'movies:movie_detail' favorite.movie.tmdb_id %}" class="btn-action btn-watch">
+                    <i class="fas fa-play"></i> View Details
+                </a>
+                <button onclick="toggleFavorite({{ favorite.movie.tmdb_id }}, this)" class="btn-action btn-favorite favorited">
+                    <i class="fas fa-heart"></i> Remove
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if favorites.has_other_pages %}
+<div class="pagination">
+    {% if favorites.has_previous %}
+        <a href="?page=1" class="page-btn">&laquo; First</a>
+        <a href="?page={{ favorites.previous_page_number }}" class="page-btn">
+            <i class="fas fa-chevron-left"></i> Previous
+        </a>
+    {% endif %}
+    
+    <span class="page-info">
+        Page {{ favorites.number }} of {{ favorites.paginator.num_pages }}
+    </span>
+    
+    {% if favorites.has_next %}
+        <a href="?page={{ favorites.next_page_number }}" class="page-btn">
+            Next <i class="fas fa-chevron-right"></i>
+        </a>
+        <a href="?page={{ favorites.paginator.num_pages }}" class="page-btn">Last &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="section" style="text-align: center; padding: 3rem;">
+    <i class="fas fa-heart-broken" style="font-size: 4rem; color: #ff4b6e; margin-bottom: 1rem;"></i>
+    <h2 style="color: #ff4b6e; margin-bottom: 1rem;">No favorites yet</h2>
+    <p style="color: #e0e0e0; margin-bottom: 2rem;">
+        Start exploring movies and add them to your favorites!
+    </p>
+    <a href="{% url 'movies:movies_list' %}" class="btn btn-primary">
+        <i class="fas fa-search"></i> Discover Movies
+    </a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cinema Chronicles{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Side Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-film"></i> Cinema Chronicles</h3>
+            <button class="close-sidebar" onclick="toggleSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar-content">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-info">
+                    <h4>{{ user.get_full_name|default:user.username }}</h4>
+                    <p>{{ user.email|default:"No email set" }}</p>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="{% url 'movies:home' %}" class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'movies:movies_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'movies_list' %}active{% endif %}">
+                    <i class="fas fa-search"></i>
+                    <span>Discover Movies</span>
+                </a>
+                <a href="{% url 'movies:favorites' %}" class="sidebar-link {% if request.resolver_match.url_name == 'favorites' %}active{% endif %}">
+                    <i class="fas fa-heart"></i>
+                    <span>My Favorites</span>
+                </a>
+                <a href="{% url 'movies:watch_history' %}" class="sidebar-link {% if request.resolver_match.url_name == 'watch_history' %}active{% endif %}">
+                    <i class="fas fa-history"></i>
+                    <span>Watch History</span>
+                </a>
+                
+                <div class="sidebar-divider"></div>
+                
+                <a href="#" class="sidebar-link" onclick="showGenreFilter()">
+                    <i class="fas fa-filter"></i>
+                    <span>Browse by Genre</span>
+                </a>
+                <a href="#" class="sidebar-link" onclick="showSettings()">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                
+                <div class="sidebar-divider"></div>
+                
+                <a href="{% url 'accounts:logout' %}" class="sidebar-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <button class="hamburger-btn-nav" onclick="toggleSidebar()" title="Open Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <a href="{% url 'movies:home' %}" class="logo">
+                <i class="fas fa-film"></i> ChrixTech Chronicle
+            </a>
+        </div>
+        <div class="nav-right">
+            <div class="user-menu-simple">
+                <span class="username"><i class="fas fa-user"></i> {{ user.username }}</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    {% endif %}
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                    <button class="close-message" onclick="this.parentElement.remove()">×</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% if user.is_authenticated %}
+    <footer class="footer">
+        <p>&copy; 2025 Christian Agyapong. All rights reserved.</p>
+    </footer>
+    {% endif %}
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

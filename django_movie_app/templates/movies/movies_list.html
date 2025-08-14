@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if search_query %}Search: {{ search_query }}{% else %}{{ mode|title }} Movies{% endif %} - Cinema Chronicles
+{% endblock %}
+
+{% block content %}
+<div class="search-filters">
+    <form method="GET" class="search-form">
+        <div class="search-row">
+            <div class="form-group">
+                <label for="search">Search Movies</label>
+                <input 
+                    type="text" 
+                    id="search" 
+                    name="search" 
+                    class="form-control" 
+                    placeholder="Enter movie title..."
+                    value="{{ search_query }}"
+                >
+            </div>
+            <div class="form-group">
+                <label for="genre">Genre</label>
+                <select id="genre" name="genre" class="form-control">
+                    <option value="">All Genres</option>
+                    {% for genre in genres %}
+                        <option value="{{ genre.id }}" {% if genre.id|stringformat:"s" == selected_genre %}selected{% endif %}>
+                            {{ genre.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="mode">Sort By</label>
+                <select id="mode" name="mode" class="form-control">
+                    <option value="trending" {% if mode == 'trending' %}selected{% endif %}>Trending</option>
+                    <option value="top_rated" {% if mode == 'top_rated' %}selected{% endif %}>Top Rated</option>
+                    <option value="upcoming" {% if mode == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn-search">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% if search_query %}
+    <div class="section">
+        <h2 class="section-title">Search results for "{{ search_query }}"</h2>
+    </div>
+{% elif selected_genre %}
+    <div class="section">
+        <h2 class="section-title">
+            {% for genre in genres %}
+                {% if genre.id|stringformat:"s" == selected_genre %}{{ genre.name }} Movies{% endif %}
+            {% endfor %}
+        </h2>
+    </div>
+{% else %}
+    <div class="section">
+        <h2 class="section-title">
+            {% if mode == 'top_rated' %}
+                <i class="fas fa-star"></i> Top Rated Movies
+            {% elif mode == 'upcoming' %}
+                <i class="fas fa-clock"></i> Upcoming Movies
+            {% else %}
+                <i class="fas fa-fire"></i> Trending Movies
+            {% endif %}
+        </h2>
+    </div>
+{% endif %}
+
+{% if movies %}
+<div class="movies-grid">
+    {% for movie in movies %}
+    <div class="movie-card">
+        <img 
+            src="{% if movie.poster_path %}https://image.tmdb.org/t/p/w300{{ movie.poster_path }}{% else %}https://via.placeholder.com/300x450?text=No+Image{% endif %}" 
+            alt="{{ movie.title }}"
+            class="movie-poster"
+            data-movie-id="{{ movie.id }}"
+        >
+        <div class="favorite-icon {% if movie.id in user_favorites %}favorited{% endif %}" data-movie-id="{{ movie.id }}">
+            <i class="{% if movie.id in user_favorites %}fas{% else %}far{% endif %} fa-heart"></i>
+        </div>
+        <div class="movie-info">
+            <h3 class="movie-title">{{ movie.title }}</h3>
+            <div class="movie-meta">
+                {% if movie.release_date %}{{ movie.release_date|slice:":4" }} • {% endif %}
+                ⭐ {{ movie.vote_average|floatformat:1 }}
+            </div>
+            <div class="movie-actions">
+                <a href="{% url 'movies:movie_detail' movie.id %}" class="btn-action btn-watch">
+                    <i class="fas fa-play"></i> Details
+                </a>
+                <button onclick="toggleFavorite({{ movie.id }}, this)" class="btn-action btn-favorite {% if movie.id in user_favorites %}favorited{% endif %}">
+                    <i class="{% if movie.id in user_favorites %}fas{% else %}far{% endif %} fa-heart"></i> 
+                    {% if movie.id in user_favorites %}Favorited{% else %}Favorite{% endif %}
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% if current_page > 1 %}
+        <a href="?page={{ current_page|add:'-1' }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_genre %}&genre={{ selected_genre }}{% endif %}&mode={{ mode }}" 
+           class="page-btn">
+            <i class="fas fa-chevron-left"></i> Previous
+        </a>
+    {% endif %}
+    
+    <span class="page-info">Page {{ current_page }} of {{ total_pages }}</span>
+    
+    {% if current_page < total_pages %}
+        <a href="?page={{ current_page|add:'1' }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_genre %}&genre={{ selected_genre }}{% endif %}&mode={{ mode }}" 
+           class="page-btn">
+            Next <i class="fas fa-chevron-right"></i>
+        </a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="section" style="text-align: center; padding: 3rem;">
+    <i class="fas fa-search" style="font-size: 4rem; color: #ff4b6e; margin-bottom: 1rem;"></i>
+    <h2 style="color: #ff4b6e; margin-bottom: 1rem;">No movies found</h2>
+    <p style="color: #e0e0e0;">Try adjusting your search criteria or browse different categories.</p>
+</div>
+{% endif %}
+
+<script>
+// Auto-submit form when genre or mode changes
+document.getElementById('genre').addEventListener('change', function() {
+    this.form.submit();
+});
+
+document.getElementById('mode').addEventListener('change', function() {
+    this.form.submit();
+});
+</script>
+{% endblock %}
