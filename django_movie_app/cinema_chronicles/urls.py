@@ -19,6 +19,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+# Customize ChrixTech Admin Site
+admin.site.site_header = 'ChrixTech Admin'
+admin.site.site_title = 'ChrixTech Admin Portal'
+admin.site.index_title = 'ChrixTech Administration'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('movies.urls')),

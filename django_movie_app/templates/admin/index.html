@@ -1,23 +1,105 @@
-{% extends "admin/index.html" %}
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | ChrixTech Admin{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .module h2, .module caption, .inline-group h2 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .dashboard #content {
+            width: auto;
+        }
+        
+        .dashboard .module table th {
+            background: #f8f9fa;
+        }
+        
+        .module h2 a {
+            color: white !important;
+        }
+        
+        .module h2 a:hover {
+            color: #f0f0f0 !important;
+        }
+    </style>
+{% endblock %}
+
+{% block content_title %}
+<h1>ChrixTech Administration</h1>
+{% endblock %}
 
 {% block content %}
-{{ block.super }}
+<div id="content-main">
+    {% if app_list %}
+        {% for app in app_list %}
+            <div class="app-{{ app.app_label }} module">
+                <table>
+                    <caption>
+                        <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+                    </caption>
+                    {% for model in app.models %}
+                        <tr class="model-{{ model.object_name|lower }}">
+                            {% if model.admin_url %}
+                                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                            {% else %}
+                                <th scope="row">{{ model.name }}</th>
+                            {% endif %}
 
-<div class="module" style="margin-top: 20px;">
-    <table>
-        <caption>
-            <i class="fas fa-chart-bar"></i> Watch History Analytics
-        </caption>
-        <tbody>
-            <tr>
-                <th scope="row">
-                    <a href="{% url 'admin:users_watch_summary' %}">User Watch Summary</a>
-                </th>
-                <td>
-                    View users grouped by their watch history instead of individual records
-                </td>
-            </tr>
-        </tbody>
-    </table>
+                            {% if model.add_url %}
+                                <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+                            {% else %}
+                                <td>&nbsp;</td>
+                            {% endif %}
+
+                            {% if model.admin_url %}
+                                {% if model.view_only %}
+                                    <td><a href="{{ model.admin_url }}" class="viewlink">{% trans 'View' %}</a></td>
+                                {% else %}
+                                    <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+                                {% endif %}
+                            {% else %}
+                                <td>&nbsp;</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endfor %}
+        
+        <!-- Watch History Analytics Section -->
+        <div class="module" style="margin-top: 20px;">
+            <table>
+                <caption>
+                    <i class="fas fa-chart-bar"></i> Analytics & Actions
+                </caption>
+                <tbody>
+                    <tr>
+                        <th scope="row">
+                            <a href="{% url 'admin:users_watch_summary' %}">User Watch Summary</a>
+                        </th>
+                        <td>
+                            View users grouped by their watch history instead of individual records
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <a href="{% url 'admin:recent_actions' %}">Current Admin Actions</a>
+                        </th>
+                        <td>
+                            View comprehensive admin activity log with filtering and statistics
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+    {% else %}
+        <p>{% trans "You don't have permission to view or edit anything." %}</p>
+    {% endif %}
 </div>
 {% endblock %}

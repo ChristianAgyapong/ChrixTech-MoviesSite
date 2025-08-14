@@ -1,3 +1,131 @@
+/* === CSS Variables for Theme System === */
+:root {
+    --primary-color: #ff4b6e;
+    --secondary-color: #ffb86b;
+    --accent-color: #fd79a8;
+    --success-color: #00b894;
+    --warning-color: #fdcb6e;
+    --error-color: #e74c3c;
+    --info-color: #74b9ff;
+}
+
+/* === Dark Theme (Default) === */
+body, html {
+    --bg-primary: #18181c;
+    --bg-secondary: #23232b;
+    --bg-tertiary: #2a2a32;
+    --bg-card: #23232b;
+    --bg-sidebar: #1a1a1f;
+    --bg-navbar: #23232b;
+    --bg-overlay: rgba(0, 0, 0, 0.8);
+    
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
+    --text-muted: #888888;
+    --text-accent: #ff4b6e;
+    
+    --border-color: #3a3a3a;
+    --border-light: #4a4a4a;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    
+    --gradient-primary: radial-gradient(ellipse at top left, #2d1a2e 0%, #18181c 100%);
+    --gradient-secondary: linear-gradient(145deg, #23232b 0%, #2a2a32 100%);
+    --gradient-card: linear-gradient(145deg, #23232b 0%, #2a2a32 100%);
+}
+
+/* === Light Theme === */
+.theme-light {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-tertiary: #e9ecef;
+    --bg-card: #ffffff;
+    --bg-sidebar: #f8f9fa;
+    --bg-navbar: #ffffff;
+    --bg-overlay: rgba(0, 0, 0, 0.5);
+    
+    --text-primary: #2c3e50;
+    --text-secondary: #34495e;
+    --text-muted: #6c757d;
+    --text-accent: #ff4b6e;
+    
+    --border-color: #dee2e6;
+    --border-light: #e9ecef;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --shadow-light: rgba(0, 0, 0, 0.05);
+    
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
+    --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+/* === Auto Theme (System) === */
+.theme-auto {
+    --bg-primary: #18181c;
+    --bg-secondary: #23232b;
+    --bg-tertiary: #2a2a32;
+    --bg-card: #23232b;
+    --bg-sidebar: #1a1a1f;
+    --bg-navbar: #23232b;
+    --bg-overlay: rgba(0, 0, 0, 0.8);
+    
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
+    --text-muted: #888888;
+    --text-accent: #ff4b6e;
+    
+    --border-color: #3a3a3a;
+    --border-light: #4a4a4a;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    
+    --gradient-primary: radial-gradient(ellipse at top left, #2d1a2e 0%, #18181c 100%);
+    --gradient-secondary: linear-gradient(145deg, #23232b 0%, #2a2a32 100%);
+    --gradient-card: linear-gradient(145deg, #23232b 0%, #2a2a32 100%);
+}
+
+/* Auto theme adjusts to system preference */
+@media (prefers-color-scheme: light) {
+    .theme-auto {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8f9fa;
+        --bg-tertiary: #e9ecef;
+        --bg-card: #ffffff;
+        --bg-sidebar: #f8f9fa;
+        --bg-navbar: #ffffff;
+        --bg-overlay: rgba(0, 0, 0, 0.5);
+        
+        --text-primary: #2c3e50;
+        --text-secondary: #34495e;
+        --text-muted: #6c757d;
+        --text-accent: #ff4b6e;
+        
+        --border-color: #dee2e6;
+        --border-light: #e9ecef;
+        --shadow: rgba(0, 0, 0, 0.1);
+        --shadow-light: rgba(0, 0, 0, 0.05);
+        
+        --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-secondary: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
+        --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    }
+}
+
+/* === Data Saver Mode === */
+.data-saver-mode {
+    --shadow: none;
+    --shadow-light: none;
+}
+
+.data-saver-mode * {
+    animation: none !important;
+    transition: none !important;
+}
+
+.data-saver-mode img {
+    filter: contrast(0.8) brightness(0.9);
+}
+
 /* === General Styles === */
 * {
     margin: 0;
@@ -7,11 +135,12 @@
 
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: radial-gradient(ellipse at top left, #2d1a2e 0%, #18181c 100%);
-    color: #fff;
+    background: var(--gradient-primary);
+    color: var(--text-primary);
     min-height: 100vh;
     line-height: 1.6;
     overflow-x: hidden;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .main-content {
@@ -90,20 +219,13 @@ body {
     left: -320px;
     width: 320px;
     height: 100vh;
-    background: linear-gradient(180deg, 
-        #0f0f13 0%, 
-        #1a1a1f 25%, 
-        #2d1a2e 50%, 
-        #3d2a3f 75%, 
-        #1f1f1f 100%
-    );
+    background: var(--bg-sidebar);
     z-index: 1000;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border-right: 3px solid transparent;
-    border-image: linear-gradient(180deg, #ff4b6e 0%, #fd79a8 50%, #ff7675 100%) 1;
+    border-right: 3px solid var(--primary-color);
     overflow-y: auto;
     backdrop-filter: blur(20px);
-    box-shadow: 5px 0 25px rgba(0,0,0,0.5), 0 0 50px rgba(255, 75, 110, 0.1);
+    box-shadow: 5px 0 25px var(--shadow), 0 0 50px rgba(255, 75, 110, 0.1);
 }
 
 .sidebar.active {
@@ -454,18 +576,21 @@ body {
 .hamburger-btn-nav span {
     width: 20px;
     height: 2px;
-    background: #ff4b6e;
+    background: #ffffff;
     border-radius: 2px;
     transition: all 0.3s ease;
     display: block;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .hamburger-btn-nav:hover span {
-    background: white;
+    background: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .hamburger-btn-nav.active span:nth-child(1) {
     transform: rotate(45deg) translate(4px, 4px);
+    background: #ffffff;
 }
 
 .hamburger-btn-nav.active span:nth-child(2) {
@@ -474,6 +599,7 @@ body {
 
 .hamburger-btn-nav.active span:nth-child(3) {
     transform: rotate(-45deg) translate(5px, -5px);
+    background: #ffffff;
 }
 
 /* === Old nav styles (keeping for backward compatibility) === */

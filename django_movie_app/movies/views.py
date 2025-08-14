@@ -6,7 +6,8 @@ from django.core.paginator import Paginator
 from django.db.models import Count, Prefetch
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
-from .models import Movie, UserFavorite, UserWatchHistory
+from django.utils import timezone
+from .models import Movie, UserFavorite, UserWatchHistory, UserPreferences
 from .tmdb_service import TMDBService
 import json
 
@@ -297,3 +298,88 @@ def watch_history(request):
         'title': 'Watch History'
     }
     return render(request, 'movies/watch_history.html', context)
+
+
+@login_required
+def settings(request):
+    """User settings and preferences"""
+    from .forms import UserPreferencesForm
+    from .models import UserPreferences
+    
+    # Get or create user preferences
+    preferences = UserPreferences.get_or_create_for_user(request.user)
+    
+    if request.method == 'POST':
+        form = UserPreferencesForm(request.POST, instance=preferences)
+        if form.is_valid():
+            # Ensure preferred_genres is always a list
+            if 'preferred_genres' not in form.cleaned_data or not form.cleaned_data['preferred_genres']:
+                form.cleaned_data['preferred_genres'] = []
+            
+            try:
+                form.save()
+                messages.success(request, 'Your settings have been saved successfully!')
+                return redirect('movies:settings')
+            except Exception as e:
+                messages.error(request, f'Error saving settings: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = UserPreferencesForm(instance=preferences)
+    
+    context = {
+        'form': form,
+        'preferences': preferences,
+        'title': 'Settings & Preferences'
+    }
+    return render(request, 'movies/settings.html', context)
+
+
+@login_required
+def export_data(request):
+    """Export user's movie data"""
+    import json
+    from django.http import HttpResponse
+    
+    # Get user's data
+    favorites = list(UserFavorite.objects.filter(user=request.user).select_related('movie').values(
+        'movie__title', 'movie__tmdb_id', 'movie__vote_average', 'created_at'
+    ))
+    
+    watch_history = list(UserWatchHistory.objects.filter(user=request.user).select_related('movie').values(
+        'movie__title', 'movie__tmdb_id', 'movie__vote_average', 'watched_at'
+    ))
+    
+    preferences = UserPreferences.objects.filter(user=request.user).values().first()
+    
+    # Prepare data for export
+    export_data = {
+        'user': request.user.username,
+        'export_date': str(timezone.now()),
+        'favorites': [
+            {
+                'title': fav['movie__title'],
+                'tmdb_id': fav['movie__tmdb_id'],
+                'rating': fav['movie__vote_average'],
+                'added_date': fav['created_at'].isoformat() if fav['created_at'] else None
+            } for fav in favorites
+        ],
+        'watch_history': [
+            {
+                'title': watch['movie__title'],
+                'tmdb_id': watch['movie__tmdb_id'],
+                'rating': watch['movie__vote_average'],
+                'watched_date': watch['watched_at'].isoformat() if watch['watched_at'] else None
+            } for watch in watch_history
+        ],
+        'preferences': preferences if preferences else {}
+    }
+    
+    # Create response
+    response = HttpResponse(
+        json.dumps(export_data, indent=2, default=str),
+        content_type='application/json'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{request.user.username}_cinema_chronicles_data.json"'
+    
+    return response

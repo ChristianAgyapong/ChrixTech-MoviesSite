@@ -1,0 +1,401 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings - Cinema Chronicles{% endblock %}
+
+{% block content %}
+<div class="container settings-container">
+    <div class="settings-header">
+        <h1><i class="fas fa-cog"></i> Settings</h1>
+        <p class="settings-subtitle">Customize your movie experience</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message message-{{ message.tags }}">
+                <i class="fas fa-check-circle"></i> {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="settings-form">
+        {% csrf_token %}
+        
+        <!-- Theme & Display -->
+        <div class="settings-section">
+            <div class="section-header">
+                <h3><i class="fas fa-palette"></i> Theme & Display</h3>
+                <p>Choose how you want Cinema Chronicles to look and feel</p>
+            </div>
+            <div class="settings-grid">
+                <div class="form-group">
+                    <label for="{{ form.theme.id_for_label }}">Theme</label>
+                    {{ form.theme }}
+                    <small class="form-help">Choose your preferred color scheme</small>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.default_view.id_for_label }}">Default View</label>
+                    {{ form.default_view }}
+                    <small class="form-help">How movies are displayed by default</small>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.movies_per_page.id_for_label }}">Movies Per Page</label>
+                    {{ form.movies_per_page }}
+                    <small class="form-help">Number of movies shown at once</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movie Preferences -->
+        <div class="settings-section">
+            <div class="section-header">
+                <h3><i class="fas fa-filter"></i> Movie Preferences</h3>
+                <p>Set your movie filtering preferences</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.min_rating.id_for_label }}">Minimum Rating</label>
+                {{ form.min_rating }}
+                <small class="form-help">Only show movies with this rating or higher</small>
+            </div>
+            
+            <div class="form-group genres-group">
+                <label>Preferred Genres</label>
+                <p class="form-help">Select genres you're most interested in</p>
+                <div class="genres-grid">
+                    {{ form.preferred_genres }}
+                </div>
+            </div>
+        </div>
+
+        <!-- General Settings -->
+        <div class="settings-section">
+            <div class="section-header">
+                <h3><i class="fas fa-cogs"></i> General Settings</h3>
+                <p>Control how the app behaves</p>
+            </div>
+            <div class="checkbox-group">
+                <div class="form-check">
+                    {{ form.auto_add_to_history }}
+                    <label for="{{ form.auto_add_to_history.id_for_label }}" class="form-check-label">
+                        Auto-add to Watch History
+                    </label>
+                    <small class="form-help">{{ form.auto_add_to_history.help_text }}</small>
+                </div>
+                <div class="form-check">
+                    {{ form.email_notifications }}
+                    <label for="{{ form.email_notifications.id_for_label }}" class="form-check-label">
+                        Email Notifications
+                    </label>
+                    <small class="form-help">{{ form.email_notifications.help_text }}</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="settings-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Settings
+            </button>
+            <a href="{% url 'movies:export_data' %}" class="btn btn-secondary">
+                <i class="fas fa-download"></i> Export My Data
+            </a>
+            <a href="{% url 'movies:home' %}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </form>
+    
+    <!-- Theme Preview -->
+    <div class="theme-preview" id="themePreview" style="display: none;">
+        <h4>Theme Preview</h4>
+        <div class="preview-card">
+            <h5>Sample Movie Card</h5>
+            <p>This is how movies will look in your selected theme</p>
+            <button class="btn btn-primary btn-sm">Sample Button</button>
+        </div>
+    </div>
+</div>
+
+<!-- Settings JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Theme switching functionality
+    const themeSelect = document.getElementById('{{ form.theme.id_for_label }}');
+    const body = document.body;
+    
+    function applyTheme(theme) {
+        // Remove existing theme classes
+        body.classList.remove('theme-dark', 'theme-light', 'theme-auto');
+        
+        if (theme === 'light') {
+            body.classList.add('theme-light');
+        } else if (theme === 'dark') {
+            body.classList.add('theme-dark');
+        } else {
+            // Auto theme - detect system preference
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            body.classList.add(prefersDark ? 'theme-dark' : 'theme-light');
+        }
+        
+        // Store theme preference
+        localStorage.setItem('cinema_theme', theme);
+    }
+    
+    // Apply saved theme or current form value
+    const savedTheme = localStorage.getItem('cinema_theme') || themeSelect.value;
+    applyTheme(savedTheme);
+    themeSelect.value = savedTheme;
+    
+    // Listen for theme changes
+    themeSelect.addEventListener('change', function() {
+        applyTheme(this.value);
+        showMessage('Theme changed successfully!', 'success');
+    });
+    
+    // Auto theme system preference change listener
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (themeSelect.value === 'auto') {
+            applyTheme('auto');
+        }
+    });
+    
+    // Show/hide theme preview
+    const themePreview = document.getElementById('themePreview');
+    themeSelect.addEventListener('focus', function() {
+        themePreview.style.display = 'block';
+    });
+    
+    // Real-time validation for min_rating
+    const minRatingInput = document.getElementById('{{ form.min_rating.id_for_label }}');
+    if (minRatingInput) {
+        minRatingInput.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            if (value < 0 || value > 10) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
+});
+
+// Utility function for showing messages
+function showMessage(text, type) {
+    // Create message element
+    const message = document.createElement('div');
+    message.className = `message message-${type}`;
+    message.innerHTML = `<i class="fas fa-check-circle"></i> ${text}`;
+    
+    // Insert at top of container
+    const container = document.querySelector('.settings-container');
+    container.insertBefore(message, container.firstChild);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        message.remove();
+    }, 3000);
+}
+</script>
+
+<style>
+.settings-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.settings-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.settings-header h1 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 2.5rem;
+}
+
+.settings-subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.settings-section {
+    background: var(--card-background);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 1rem;
+}
+
+.section-header h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+}
+
+.section-header p {
+    color: var(--text-muted);
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.form-help {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--input-background);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.form-check:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 75, 110, 0.1);
+}
+
+.form-check-input {
+    margin-top: 0.2rem;
+    accent-color: var(--primary-color);
+}
+
+.form-check-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    flex: 1;
+}
+
+.genres-group {
+    grid-column: 1 / -1;
+}
+
+.genres-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.genres-grid label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--input-background);
+    border-radius: 0.4rem;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: normal;
+}
+
+.genres-grid label:hover {
+    background: var(--hover-background);
+    transform: translateY(-1px);
+}
+
+.genres-grid input[type="checkbox"]:checked + span {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.settings-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    padding: 2rem 0;
+    flex-wrap: wrap;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.theme-preview {
+    background: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    margin-top: 2rem;
+}
+
+.preview-card {
+    background: var(--background-color);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.is-invalid {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 5px rgba(220, 53, 69, 0.3) !important;
+}
+
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 1rem;
+    }
+    
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .settings-actions {
+        flex-direction: column;
+    }
+    
+    .genres-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

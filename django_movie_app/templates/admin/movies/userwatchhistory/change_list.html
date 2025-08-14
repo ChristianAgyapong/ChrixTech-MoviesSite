@@ -4,15 +4,40 @@
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div>
         <h1>{{ title }}</h1>
-        <p style="color: #666; margin: 0;">Individual watch history records. For a grouped view by user, use the summary below.</p>
+        <p style="color: #666; margin: 0;">Individual watch history records with advanced time-based filtering.</p>
     </div>
     <div>
         <a href="{% url 'admin:users_watch_summary' %}" 
            style="background: #007cba; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-            📊 View User Summary
+            <i class="fas fa-chart-bar"></i> View User Summary & Time Analysis
         </a>
     </div>
 </div>
+
+<!-- Watch Statistics -->
+{% if stats %}
+<div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;">
+    <h3 style="margin-top: 0; color: #495057;">📊 Watch Statistics</h3>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <div style="text-align: center; min-width: 100px;">
+            <div style="font-size: 1.5rem; font-weight: bold; color: #007bff;">{{ stats.total }}</div>
+            <div style="font-size: 0.9rem; color: #6c757d;">Total Watches</div>
+        </div>
+        <div style="text-align: center; min-width: 100px;">
+            <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">{{ stats.today }}</div>
+            <div style="font-size: 0.9rem; color: #6c757d;">Today</div>
+        </div>
+        <div style="text-align: center; min-width: 100px;">
+            <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">{{ stats.this_week }}</div>
+            <div style="font-size: 0.9rem; color: #6c757d;">This Week</div>
+        </div>
+        <div style="text-align: center; min-width: 100px;">
+            <div style="font-size: 1.5rem; font-weight: bold; color: #17a2b8;">{{ stats.this_month }}</div>
+            <div style="font-size: 0.9rem; color: #6c757d;">This Month</div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extrahead %}

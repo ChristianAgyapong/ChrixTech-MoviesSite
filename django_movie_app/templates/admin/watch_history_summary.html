@@ -1,196 +1,826 @@
 {% extends "admin/base_site.html" %}
-{% load admin_urls %}
+{% load admin_urls static admin_list %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{{ title }} | Cinema Chronicles Admin{% endblock %}
 
 {% block extrahead %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-    .user-summary {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        padding: 15px;
-        margin: 10px 0;
-        cursor: pointer;
-        transition: background-color 0.3s;
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --accent-color: #f093fb;
+    --success-color: #4facfe;
+    --warning-color: #43e97b;
+    --info-color: #38ef7d;
+    --dark-color: #2d3748;
+    --light-color: #f7fafc;
+    --border-color: #e2e8f0;
+    --text-primary: #2d3748;
+    --text-secondary: #718096;
+    --shadow: 0 10px 25px rgba(0,0,0,0.1);
+    --shadow-hover: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+}
+
+.dashboard-container {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    margin: 2rem;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-title {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    animation: fadeInScale 0.8s ease-out 0.2s both;
+}
+
+.dashboard-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    animation: fadeInScale 0.8s ease-out 0.4s both;
+}
+
+/* Time Filter Bar */
+.time-filter-section {
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(247,250,252,0.9));
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+    animation: fadeInScale 0.6s ease-out 0.3s both;
+}
+
+.filter-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.time-filter-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.time-filter-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(247,250,252,0.9));
+    color: var(--text-primary);
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.time-filter-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+.time-filter-btn:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.time-filter-btn:hover::before {
+    left: 0;
+}
+
+.time-filter-btn.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    box-shadow: var(--shadow);
+    animation: pulse 2s infinite;
+}
+
+/* Statistics Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+    animation: fadeInScale 0.6s ease-out 0.4s both;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(247,250,252,0.95));
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    transition: height 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-hover);
+}
+
+.stat-card:hover::before {
+    height: 8px;
+}
+
+.stat-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--success-color), var(--warning-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    animation: countUp 1s ease-out;
+}
+
+@keyframes countUp {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+/* Chart Section */
+.chart-section {
+    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(247,250,252,0.95));
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid var(--border-color);
+    animation: fadeInScale 0.6s ease-out 0.5s both;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin: 1rem 0;
+}
+
+/* Users Grid */
+.users-section {
+    animation: fadeInScale 0.6s ease-out 0.6s both;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0 1.5rem 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.user-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin: 1rem 0;
+}
+
+.user-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(247,250,252,0.95));
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.user-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.user-card:hover::before {
+    transform: scaleX(1);
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.user-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.user-name a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.user-name a:hover {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.user-stats {
+    display: flex;
+    justify-content: space-between;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: rgba(0,0,0,0.02);
+    border-radius: 10px;
+}
+
+.user-stat {
+    text-align: center;
+}
+
+.user-stat-number {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.user-stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+.user-email {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* User Details Section */
+.user-detail-section {
+    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(247,250,252,0.95));
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid var(--border-color);
+    animation: fadeInScale 0.6s ease-out;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    transform: translateX(-5px);
+    box-shadow: var(--shadow);
+    color: white;
+    text-decoration: none;
+}
+
+.watch-items-grid {
+    display: grid;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.watch-item {
+    background: rgba(255,255,255,0.8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.watch-item:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow);
+}
+
+.movie-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent-color), var(--warning-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.watch-content {
+    flex: 1;
+}
+
+.watch-movie-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.watch-time {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.movie-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--warning-color);
+    font-weight: 500;
+    margin-top: 0.25rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+    background: rgba(0,0,0,0.02);
+    border-radius: 15px;
+    margin: 2rem 0;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state-message {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-container {
+        margin: 1rem;
+        padding: 1rem;
     }
     
-    .user-summary:hover {
-        background: #e9ecef;
+    .dashboard-title {
+        font-size: 2rem;
     }
     
-    .user-summary.selected {
-        background: #d4edda;
-        border-color: #c3e6cb;
+    .stats-grid {
+        grid-template-columns: 1fr;
     }
     
-    .user-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .user-grid {
+        grid-template-columns: 1fr;
     }
     
-    .user-name {
-        font-weight: bold;
-        font-size: 16px;
-        color: #495057;
+    .time-filter-buttons {
+        justify-content: flex-start;
     }
     
     .user-stats {
-        display: flex;
-        gap: 15px;
+        flex-direction: column;
+        gap: 1rem;
     }
     
-    .stat-item {
-        background: #007bff;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 15px;
-        font-size: 12px;
-        font-weight: bold;
-    }
-    
-    .watch-details {
-        margin-top: 20px;
-        background: white;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        padding: 20px;
-    }
-    
-    .movie-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .movie-item:last-child {
-        border-bottom: none;
-    }
-    
-    .movie-title {
-        font-weight: bold;
-        color: #495057;
-    }
-    
-    .watch-date {
-        color: #6c757d;
-        font-size: 14px;
-    }
-    
-    .rating {
-        color: #ffc107;
-        font-weight: bold;
-    }
-    
-    .back-link {
-        display: inline-block;
-        margin-bottom: 20px;
-        color: #007bff;
-        text-decoration: none;
-    }
-    
-    .back-link:hover {
-        text-decoration: underline;
-    }
-    
-    .no-selection {
+    .watch-item {
+        flex-direction: column;
         text-align: center;
-        color: #6c757d;
-        font-style: italic;
-        padding: 40px;
-        background: #f8f9fa;
-        border-radius: 5px;
-        margin-top: 20px;
     }
-    
-    .page-header {
-        border-bottom: 1px solid #dee2e6;
-        padding-bottom: 15px;
-        margin-bottom: 20px;
-    }
-    
-    .summary-grid {
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        gap: 20px;
-    }
-    
-    @media (max-width: 768px) {
-        .summary-grid {
-            grid-template-columns: 1fr;
-        }
-    }
+}
+
+/* Loading Animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(102,126,234,.3);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Scroll animations */
+.fade-in-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease-out;
+}
+
+.fade-in-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>{{ title }}</h1>
-    <p>Click on any user to view their complete watch history</p>
-</div>
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">
+            <i class="fas fa-chart-line"></i>
+            Cinema Chronicles Analytics
+        </h1>
+        <p class="dashboard-subtitle">User Watch History & Activity Dashboard</p>
+    </div>
 
-<div class="summary-grid">
-    <div class="users-list">
-        <h2>Users ({{ users_with_history.count }})</h2>
-        
-        {% for user in users_with_history %}
-        <div class="user-summary {% if selected_user.id == user.id %}selected{% endif %}" 
-             onclick="window.location.href='?user_id={{ user.id }}'">
-            <div class="user-info">
-                <div class="user-name">
-                    {{ user.username }}
-                    {% if user.first_name or user.last_name %}
-                        ({{ user.first_name }} {{ user.last_name }})
+    <!-- Time Filter Section -->
+    <div class="time-filter-section">
+        <div class="filter-title">
+            <i class="fas fa-filter"></i>
+            Filter by Time Period
+        </div>
+        <div class="time-filter-buttons">
+            <a href="?time_filter=all{% if selected_user %}&user_id={{ selected_user.id }}{% endif %}" 
+               class="time-filter-btn {% if time_filter == 'all' %}active{% endif %}">
+                <i class="fas fa-infinity"></i> All Time
+            </a>
+            <a href="?time_filter=today{% if selected_user %}&user_id={{ selected_user.id }}{% endif %}" 
+               class="time-filter-btn {% if time_filter == 'today' %}active{% endif %}">
+                <i class="fas fa-calendar-day"></i> Today
+            </a>
+            <a href="?time_filter=this_week{% if selected_user %}&user_id={{ selected_user.id }}{% endif %}" 
+               class="time-filter-btn {% if time_filter == 'this_week' %}active{% endif %}">
+                <i class="fas fa-calendar-week"></i> This Week
+            </a>
+            <a href="?time_filter=this_month{% if selected_user %}&user_id={{ selected_user.id }}{% endif %}" 
+               class="time-filter-btn {% if time_filter == 'this_month' %}active{% endif %}">
+                <i class="fas fa-calendar-alt"></i> This Month
+            </a>
+            <a href="?time_filter=last_month{% if selected_user %}&user_id={{ selected_user.id }}{% endif %}" 
+               class="time-filter-btn {% if time_filter == 'last_month' %}active{% endif %}">
+                <i class="fas fa-calendar-minus"></i> Last Month
+            </a>
+            <a href="?time_filter=this_year{% if selected_user %}&user_id={{ selected_user.id }}{% endif %}" 
+               class="time-filter-btn {% if time_filter == 'this_year' %}active{% endif %}">
+                <i class="fas fa-calendar-check"></i> This Year
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-number" data-count="{{ summary_stats.total_users }}">{{ summary_stats.total_users }}</div>
+            <div class="stat-label">Total Active Users</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-user-clock"></i>
+            </div>
+            <div class="stat-number" data-count="{{ summary_stats.active_today }}">{{ summary_stats.active_today }}</div>
+            <div class="stat-label">Active Today</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <div class="stat-number" data-count="{{ summary_stats.active_this_week }}">{{ summary_stats.active_this_week }}</div>
+            <div class="stat-label">Active This Week</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-filter"></i>
+            </div>
+            <div class="stat-number" data-count="{{ users_with_history|length }}">{{ users_with_history|length }}</div>
+            <div class="stat-label">Users in Current Filter</div>
+        </div>
+    </div>
+
+    <!-- Chart Section -->
+    {% if not selected_user %}
+    <div class="chart-section">
+        <h3><i class="fas fa-chart-pie"></i> Activity Overview</h3>
+        <div class="chart-container">
+            <canvas id="activityChart"></canvas>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not selected_user %}
+        <!-- Users Grid -->
+        <div class="users-section">
+            <div class="section-header">
+                <i class="fas fa-users-cog"></i>
+                Users and Their Watch Activity
+            </div>
+            <div class="user-grid">
+                {% for user in users_with_history %}
+                <div class="user-card fade-in-on-scroll">
+                    <div class="user-avatar">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="user-name">
+                        <a href="?user_id={{ user.id }}&time_filter={{ time_filter }}">{{ user.username }}</a>
+                    </div>
+                    <div class="user-stats">
+                        <div class="user-stat">
+                            <div class="user-stat-number">{{ user.movies_watched }}</div>
+                            <div class="user-stat-label">Unique Movies</div>
+                        </div>
+                        <div class="user-stat">
+                            <div class="user-stat-number">{{ user.total_watches }}</div>
+                            <div class="user-stat-label">Total Watches</div>
+                        </div>
+                    </div>
+                    {% if user.email %}
+                    <div class="user-email">
+                        <i class="fas fa-envelope"></i>
+                        {{ user.email }}
+                    </div>
                     {% endif %}
                 </div>
-                <div class="user-stats">
-                    <span class="stat-item">{{ user.movies_watched }} Movies</span>
-                    <span class="stat-item">{{ user.total_watches }} Watches</span>
+                {% empty %}
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    <div class="empty-state-message">
+                        No users found for the selected time period.
+                    </div>
                 </div>
+                {% endfor %}
             </div>
         </div>
-        {% empty %}
-        <p>No users have watch history yet.</p>
-        {% endfor %}
-    </div>
-    
-    <div class="watch-details-container">
-        {% if selected_user %}
-            {% if request.GET.user_id %}
-                <a href="?" class="back-link">← Back to all users</a>
-            {% endif %}
+    {% endif %}
+
+    {% if selected_user and user_watch_details %}
+        <!-- Selected User Details -->
+        <div class="user-detail-section">
+            <a href="?time_filter={{ time_filter }}" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Back to Users List
+            </a>
             
-            <div class="watch-details">
-                <h2>{{ selected_user.username }}'s Watch History</h2>
-                <p><strong>Total movies watched:</strong> {{ user_watch_details.count }}</p>
-                
-                {% if user_watch_details %}
-                    <div class="movie-list">
-                        {% for watch in user_watch_details %}
-                        <div class="movie-item">
-                            <div>
-                                <div class="movie-title">{{ watch.movie.title }}</div>
-                                <div class="watch-date">Watched on {{ watch.watched_at|date:"M d, Y \at H:i" }}</div>
-                            </div>
-                            <div>
-                                <span class="rating">★ {{ watch.movie.vote_average|floatformat:1 }}/10</span>
-                            </div>
-                        </div>
-                        {% endfor %}
+            <h2>
+                <i class="fas fa-user-circle"></i>
+                {{ selected_user.username }}'s Watch History 
+                {% if time_filter != 'all' %}({{ time_filter|title }}){% endif %}
+            </h2>
+            
+            <div class="section-header">
+                <i class="fas fa-history"></i>
+                {{ user_watch_details|length }} Watch Record{{ user_watch_details|length|pluralize }}
+            </div>
+            
+            <div class="watch-items-grid">
+                {% for watch in user_watch_details %}
+                <div class="watch-item fade-in-on-scroll">
+                    <div class="movie-icon">
+                        <i class="fas fa-film"></i>
                     </div>
-                {% else %}
-                    <p>No watch history found.</p>
-                {% endif %}
+                    <div class="watch-content">
+                        <div class="watch-movie-title">{{ watch.movie.title }}</div>
+                        <div class="watch-time">
+                            <i class="fas fa-clock"></i>
+                            {{ watch.watched_at|date:"M d, Y \a\t H:i" }}
+                            ({{ watch.watched_at|timesince }} ago)
+                        </div>
+                        {% if watch.movie.vote_average %}
+                        <div class="movie-rating">
+                            <i class="fas fa-star"></i>
+                            {{ watch.movie.vote_average }}/10
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-        {% else %}
-            <div class="no-selection">
-                <h3>Select a user to view their watch history</h3>
-                <p>Click on any user from the list to see all movies they have watched.</p>
-            </div>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 </div>
+
+<script>
+// Initialize Chart if not showing specific user
+{% if not selected_user %}
+const ctx = document.getElementById('activityChart').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Active Today', 'Active This Week', 'Total Users'],
+        datasets: [{
+            data: [
+                {{ summary_stats.active_today }},
+                {{ summary_stats.active_this_week }},
+                {{ summary_stats.total_users }}
+            ],
+            backgroundColor: [
+                'rgba(102, 126, 234, 0.8)',
+                'rgba(118, 75, 162, 0.8)',
+                'rgba(240, 147, 251, 0.8)'
+            ],
+            borderColor: [
+                'rgba(102, 126, 234, 1)',
+                'rgba(118, 75, 162, 1)',
+                'rgba(240, 147, 251, 1)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    font: {
+                        size: 14
+                    }
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+// Scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.fade-in-on-scroll').forEach(el => {
+    observer.observe(el);
+});
+
+// Number animation for stats
+function animateNumber(element, target) {
+    const start = 0;
+    const duration = 2000;
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const progress = Math.min((currentTime - startTime) / duration, 1);
+        const current = Math.floor(progress * target);
+        element.textContent = current;
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+// Animate numbers when they come into view
+const numberObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const element = entry.target;
+            const target = parseInt(element.getAttribute('data-count'));
+            animateNumber(element, target);
+            numberObserver.unobserve(element);
+        }
+    });
+});
+
+document.querySelectorAll('.stat-number[data-count]').forEach(el => {
+    numberObserver.observe(el);
+});
+</script>
 {% endblock %}

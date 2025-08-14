@@ -1,0 +1,65 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | ChrixTech Admin{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+    <a href="{% url 'admin:index' %}">ChrixTech Admin</a>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrahead %}
+<style>
+    #header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    #site-name a {
+        color: white !important;
+        font-weight: bold;
+        font-size: 1.2em;
+        text-decoration: none;
+    }
+    
+    #site-name a:hover {
+        color: #f0f0f0 !important;
+    }
+    
+    .breadcrumbs {
+        background: rgba(255,255,255,0.1);
+        border: none;
+    }
+    
+    .breadcrumbs a {
+        color: white !important;
+    }
+    
+    .breadcrumbs a:hover {
+        color: #f0f0f0 !important;
+    }
+    
+    #header h1 {
+        color: white;
+    }
+    
+    #header h1 a {
+        color: white !important;
+    }
+    
+    /* Style for the user tools */
+    #user-tools {
+        color: white;
+    }
+    
+    #user-tools a {
+        color: white !important;
+    }
+    
+    #user-tools a:hover {
+        color: #f0f0f0 !important;
+    }
+</style>
+{% endblock %}

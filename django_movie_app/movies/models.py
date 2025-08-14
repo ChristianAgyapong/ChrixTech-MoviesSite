@@ -79,3 +79,47 @@ class UserWatchHistory(models.Model):
             obj.save(update_fields=['watched_at'])
         
         return obj, created
+
+
+class UserPreferences(models.Model):
+    THEME_CHOICES = [
+        ('dark', 'Dark Theme'),
+        ('light', 'Light Theme'),
+        ('auto', 'Auto (System)'),
+    ]
+    
+    VIEW_CHOICES = [
+        ('grid', 'Grid View'),
+        ('list', 'List View'),
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='preferences')
+    
+    # Display Preferences
+    theme = models.CharField(max_length=10, choices=THEME_CHOICES, default='dark')
+    default_view = models.CharField(max_length=10, choices=VIEW_CHOICES, default='grid')
+    movies_per_page = models.IntegerField(default=20, choices=[(10, '10'), (20, '20'), (30, '30'), (50, '50')])
+    
+    # Filter Preferences
+    min_rating = models.FloatField(default=0.0, help_text="Minimum movie rating to show")
+    preferred_genres = models.JSONField(default=list, blank=True, null=True)
+    
+    # Essential Settings
+    auto_add_to_history = models.BooleanField(default=True, help_text="Automatically add viewed movies to watch history")
+    email_notifications = models.BooleanField(default=True, help_text="Receive email notifications")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "User Preferences"
+        verbose_name_plural = "User Preferences"
+    
+    def __str__(self):
+        return f"{self.user.username}'s Preferences"
+    
+    @classmethod
+    def get_or_create_for_user(cls, user):
+        """Get or create preferences for a user"""
+        preferences, created = cls.objects.get_or_create(user=user)
+        return preferences

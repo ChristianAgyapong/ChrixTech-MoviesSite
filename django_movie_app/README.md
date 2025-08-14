@@ -83,7 +83,7 @@ django_movie_app/
 │   ├── views.py               # Application views
 │   ├── urls.py                # URL routing
 │   ├── tmdb_service.py        # TMDB API integration
-│   └── admin.py               # Django admin configuration
+│   └── admin.py               # ChrixTech admin configuration
 ├── accounts/                   # User authentication app
 │   ├── views.py               # Auth views
 │   └── urls.py                # Auth URLs
@@ -120,7 +120,7 @@ django_movie_app/
 
 ## Admin Interface
 
-Access the Django admin at `/admin/` to manage:
+Access the ChrixTech Admin at `/admin/` to manage:
 - Users and authentication
 - Movies in the database
 - User favorites and watch history
