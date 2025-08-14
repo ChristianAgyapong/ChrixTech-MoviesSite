@@ -30,9 +30,10 @@
                 <a href="{% url 'movies:movie_detail' watch.movie.tmdb_id %}" class="btn-action btn-watch">
                     <i class="fas fa-play"></i> View Details
                 </a>
-                <button onclick="addToWatchHistory({{ watch.movie.tmdb_id }}, this)" class="btn-action" style="background: #17a2b8;">
-                    <i class="fas fa-history"></i> Re-watch
-                </button>
+                <div class="watch-timestamp">
+                    <i class="fas fa-clock text-muted"></i>
+                    <span class="text-muted">Watched on {{ watch.watched_at|date:"M d, Y" }}</span>
+                </div>
             </div>
         </div>
     </div>

@@ -181,4 +181,31 @@
     }
 }
 </style>
+
+<script>
+    // Auto-watch tracking with viewing time
+    document.addEventListener('DOMContentLoaded', function() {
+        const movieTitle = "{{ movie_data.title|escapejs }}";
+        const startTime = Date.now();
+        
+        // Show auto-watch notification after user has been on page for 3 seconds
+        setTimeout(() => {
+            showAutoWatchNotification(movieTitle);
+        }, 3000);
+        
+        // Track page visibility to ensure user is actually viewing
+        let isVisible = true;
+        document.addEventListener('visibilitychange', function() {
+            isVisible = !document.hidden;
+        });
+        
+        // Optional: Enhanced tracking for future analytics
+        window.addEventListener('beforeunload', function() {
+            if (isVisible) {
+                const viewingTime = Math.round((Date.now() - startTime) / 1000);
+                console.log(`User viewed "${movieTitle}" for ${viewingTime} seconds`);
+            }
+        });
+    });
+</script>
 {% endblock %}

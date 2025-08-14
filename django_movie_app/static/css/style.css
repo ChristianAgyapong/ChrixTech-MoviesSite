@@ -1279,3 +1279,76 @@ body {
         padding-left: 4rem;
     }
 }
+
+/* === Auto-Watch Feature Styles === */
+.watch-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.watch-status i {
+    font-size: 1.1rem;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Auto-watch notification styles */
+.auto-watch-notification {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 3px 6px rgba(23, 162, 184, 0.2);
+    animation: slideInRight 0.6s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Watch timestamp styling */
+.watch-timestamp {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.watch-timestamp i {
+    opacity: 0.7;
+}
+
+.text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}

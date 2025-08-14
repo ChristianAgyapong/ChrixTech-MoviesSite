@@ -226,54 +226,35 @@ function updateMovieCardFavoriteStatus(tmdbId, isFavorite) {
     });
 }
 
-// Add to watch history with duplicate prevention
+// Auto-watch notification (for future enhancements)
+function showAutoWatchNotification(movieTitle) {
+    const notification = document.createElement('div');
+    notification.className = 'auto-watch-notification';
+    notification.innerHTML = `
+        <i class="fas fa-eye"></i>
+        <span>"${movieTitle}" has been automatically added to your watch history!</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 4 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 4000);
+}
+
+// Legacy function kept for compatibility (movies are now auto-tracked)
 async function addToWatchHistory(tmdbId, element = null) {
-    const cacheKey = createRequestKey('/api/add-to-history/', 'POST', { tmdb_id: tmdbId });
+    // Movies are automatically added to watch history when viewed
+    // This function is kept for compatibility with existing templates
     
-    // Show loading state if element provided
     if (element) {
-        element.disabled = true;
-        const originalText = element.innerHTML;
-        element.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        showMessage('Movies are automatically added to your watch history when you view them!', 'info');
     }
     
-    try {
-        const { response, data } = await safeApiCall('/api/add-to-history/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify({
-                tmdb_id: tmdbId
-            })
-        }, cacheKey);
-        
-        if (response.ok) {
-            const action = data.action || 'added';
-            showMessage(`Movie ${action} to watch history`, 'success');
-            
-            // Update button state if movie was marked as watched
-            if (data.is_watched && element) {
-                element.disabled = true;
-                element.classList.remove('btn-secondary');
-                element.classList.add('btn-success');
-                element.innerHTML = '<i class="fas fa-check-circle"></i> Already Watched';
-            }
-        } else {
-            showMessage(data.error || 'Error adding to watch history', 'error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showMessage('Error adding to watch history', 'error');
-    } finally {
-        if (element) {
-            setTimeout(() => {
-                element.disabled = false;
-                element.innerHTML = '<i class="fas fa-eye"></i> Watched';
-            }, 1000);
-        }
-    }
+    return true;
 }
 
 // Show message notification
