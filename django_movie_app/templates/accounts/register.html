@@ -23,22 +23,34 @@
         
         <div class="form-group">
             <label for="{{ form.username.id_for_label }}">Username</label>
-            {{ form.username }}
+            <input type="text" name="username" class="form-control" placeholder="Choose a unique username" required id="{{ form.username.id_for_label }}" value="{{ form.username.value|default:'' }}">
+            {% if form.username.errors %}
+                <div class="field-errors">{{ form.username.errors.0 }}</div>
+            {% endif %}
         </div>
         
         <div class="form-group">
             <label for="{{ form.email.id_for_label }}">Email Address</label>
-            {{ form.email }}
+            <input type="email" name="email" class="form-control" placeholder="Enter your email address" required id="{{ form.email.id_for_label }}" value="{{ form.email.value|default:'' }}">
+            {% if form.email.errors %}
+                <div class="field-errors">{{ form.email.errors.0 }}</div>
+            {% endif %}
         </div>
         
         <div class="form-group">
             <label for="{{ form.password1.id_for_label }}">Password</label>
-            {{ form.password1 }}
+            <input type="password" name="password1" class="form-control" placeholder="Create a strong password" required id="{{ form.password1.id_for_label }}">
+            {% if form.password1.errors %}
+                <div class="field-errors">{{ form.password1.errors.0 }}</div>
+            {% endif %}
         </div>
         
         <div class="form-group">
             <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
-            {{ form.password2 }}
+            <input type="password" name="password2" class="form-control" placeholder="Confirm your password" required id="{{ form.password2.id_for_label }}">
+            {% if form.password2.errors %}
+                <div class="field-errors">{{ form.password2.errors.0 }}</div>
+            {% endif %}
         </div>
         
         <div class="form-actions">
@@ -82,6 +94,17 @@
 
 .form-link:hover {
     transform: translateX(5px);
+}
+
+.field-errors {
+    color: #ff6b8a;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    background: rgba(255, 107, 138, 0.1);
+    border: 1px solid rgba(255, 107, 138, 0.3);
+    border-radius: 0.4rem;
+    backdrop-filter: blur(10px);
 }
 </style>
 {% endblock %}

@@ -23,7 +23,10 @@
         
         <div class="form-group">
             <label for="{{ form.username.id_for_label }}">Username or Email</label>
-            {{ form.username }}
+            <input type="text" name="username" class="form-control" placeholder="Enter your username or email" required id="{{ form.username.id_for_label }}" value="{{ form.username.value|default:'' }}">
+            {% if form.username.errors %}
+                <div class="field-errors">{{ form.username.errors.0 }}</div>
+            {% endif %}
             {% if form.username.help_text %}
                 <small style="color: #bbb; font-size: 0.8rem;">{{ form.username.help_text }}</small>
             {% endif %}
@@ -31,7 +34,10 @@
         
         <div class="form-group">
             <label for="{{ form.password.id_for_label }}">Password</label>
-            {{ form.password }}
+            <input type="password" name="password" class="form-control" placeholder="Enter your password" required id="{{ form.password.id_for_label }}">
+            {% if form.password.errors %}
+                <div class="field-errors">{{ form.password.errors.0 }}</div>
+            {% endif %}
         </div>
         
         <div class="form-actions">
@@ -75,6 +81,17 @@
 
 .form-link:hover {
     transform: translateX(5px);
+}
+
+.field-errors {
+    color: #ff6b8a;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    background: rgba(255, 107, 138, 0.1);
+    border: 1px solid rgba(255, 107, 138, 0.3);
+    border-radius: 0.4rem;
+    backdrop-filter: blur(10px);
 }
 </style>
 {% endblock %}
