@@ -7,10 +7,10 @@
       "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
     },
     {
-      "src": "django_movie_app/build_files.sh",
+      "src": "build_files.sh",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "staticfiles_build"
+        "distDir": "django_movie_app/staticfiles_build"
       }
     }
   ],

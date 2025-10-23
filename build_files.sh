@@ -7,9 +7,9 @@ echo "Building the project..."
 cd django_movie_app
 
 # Install dependencies
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 # Collect static files
-python3.9 manage.py collectstatic --noinput --clear
+python3 manage.py collectstatic --noinput --clear
 
 echo "Build completed successfully!"
