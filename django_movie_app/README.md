@@ -133,7 +133,46 @@ Access the ChrixTech Admin at `/admin/` to manage:
 - **Database**: SQLite (default, can be changed to PostgreSQL/MySQL)
 - **API**: The Movie Database (TMDB) API
 - **Styling**: Custom CSS with Font Awesome icons
-- **Deployment**: Ready for deployment on platforms like Heroku, Railway, etc.
+- **Static Files**: WhiteNoise for production
+- **Deployment**: Vercel-ready with production configuration
+
+## 🚀 Deployment to Vercel
+
+This application is configured for easy deployment to Vercel. See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for detailed instructions.
+
+### Quick Deploy Steps:
+
+1. **Run Pre-Deployment Checks**
+   ```bash
+   .\deploy-check.ps1
+   ```
+
+2. **Push to GitHub**
+   ```bash
+   git add .
+   git commit -m "Deploy to Vercel"
+   git push origin main
+   ```
+
+3. **Deploy via Vercel Dashboard**
+   - Go to https://vercel.com/dashboard
+   - Import your repository
+   - Add environment variables (SECRET_KEY, DEBUG, TMDB_API_KEY)
+   - Deploy!
+
+4. **Or Deploy via CLI**
+   ```bash
+   vercel --prod
+   ```
+
+### Production Environment Variables
+
+Set these in your Vercel dashboard:
+```env
+SECRET_KEY=your-generated-secret-key
+DEBUG=False
+TMDB_API_KEY=949258ff4ff329d48e662c7badcd4ac9
+```
 
 ## Environment Variables
 
