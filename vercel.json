@@ -23,5 +23,8 @@
       "src": "/(.*)",
       "dest": "django_movie_app/cinema_chronicles/wsgi.py"
     }
-  ]
+  ],
+  "env": {
+    "VERCEL": "1"
+  }
 }
