@@ -1,0 +1,10 @@
+django_movie_app/venv
+django_movie_app/*.pyc
+django_movie_app/__pycache__
+django_movie_app/db.sqlite3
+django_movie_app/*.sqlite3
+django_movie_app/.env
+django_movie_app/media
+django_movie_app/staticfiles_build
+index.html
+script.js
