@@ -7,7 +7,7 @@ from django.db.models import Count, Prefetch
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
 from django.utils import timezone
-from .models import Movie, UserFavorite, UserWatchHistory, UserPreferences
+from .models import Movie, UserFavorite, UserWatchHistory, UserPreferences    
 from .tmdb_service import TMDBService
 import json
 
