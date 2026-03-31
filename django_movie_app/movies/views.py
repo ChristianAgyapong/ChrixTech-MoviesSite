@@ -11,7 +11,7 @@ from .models import Movie, UserFavorite, UserWatchHistory, UserPreferences
 from .tmdb_service import TMDBService
 import json
 
-def landing(request):
+def landing(request): 
     """Landing page for non-authenticated users"""
     return render(request, 'movies/landing.html')
 
