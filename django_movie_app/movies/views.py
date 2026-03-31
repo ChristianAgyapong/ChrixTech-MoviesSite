@@ -33,7 +33,7 @@ def home(request):
     
     favorites_count = cache.get(cache_key_favorites)
     if favorites_count is None:
-        favorites_count = UserFavorite.objects.filter(user=request.user).count()
+        favorites_count = UserFavorite.objects.filter(user=request.user).count()  
         cache.set(cache_key_favorites, favorites_count, 300)  # Cache for 5 minutes
     
     watched_count = cache.get(cache_key_watched)
